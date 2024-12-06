@@ -5,22 +5,34 @@ on:
 
 jobs:
   ci:
+    # Using Environment - prod 환경 사용
+    # environment: prod
     runs-on: ubuntu-24.04
     env:
       working-directory: .
 
+    # Checkout - 가상 머신에 체크아웃
     steps:
       - name: 체크아웃
         uses: actions/checkout@v3
 
+      # JDK setting - Amazon Corretto JDK 21 설정
       - name: Set up Amazon Corretto JDK 21
-        run: |
-          sudo apt update
-          sudo apt install -y software-properties-common
-          sudo apt-add-repository -y ppa:amazoncorretto/ppa
-          sudo apt update
-          sudo apt install -y java-21-amazon-corretto-jdk
-          java -version
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+
+      # Gradle caching - 빌드 시간 향상
+      - name: Gradle Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: application.yml 생성
         run: |
