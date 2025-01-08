@@ -1,4 +1,4 @@
-package org.noostak.server.domain.User;
+package org.noostak.server.member.domain;
 
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;

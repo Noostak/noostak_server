@@ -1,18 +1,18 @@
-package org.noostak.server.domain.User;
+package org.noostak.server.member.domain;
 
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 
 @Embeddable
 @EqualsAndHashCode
-public class UserName {
+public class MemberName {
     private final String userName;
 
-    protected UserName() {
+    protected MemberName() {
         this.userName = null;
     }
 
-    public UserName(String userName) {
+    public MemberName(String userName) {
         validateUserName(userName);
         this.userName = userName;
     }
