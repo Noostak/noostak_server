@@ -1,4 +1,4 @@
-package org.noostak.server.domain.group;
+package org.noostak.server.group.domain;
 
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;

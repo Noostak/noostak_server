@@ -1,10 +1,11 @@
-package org.noostak.server.domain.group;
+package org.noostak.server.group.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.noostak.server.domain.appointment.Appointment;
-import org.noostak.server.domain.User.User;
+import org.noostak.server.appointment.domain.Appointment;
+import org.noostak.server.global.common.BaseTimeEntity;
+import org.noostak.server.member.domain.Member;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,7 +14,7 @@ import java.util.Set;
 @Entity
 @Getter
 @RequiredArgsConstructor
-public class Group {
+public class Group extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,15 +29,9 @@ public class Group {
     private InviteCodes inviteCodes = InviteCodes.init();
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<User> users = new HashSet<>();
+    private Set<Member> members = new HashSet<>();
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Appointment> appointments = new HashSet<>();
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime modifiedAt;
 
 }
