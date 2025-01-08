@@ -1,17 +1,18 @@
-package org.noostak.server.domain.appointment;
+package org.noostak.server.appointment.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.noostak.server.domain.User.User;
-import org.noostak.server.domain.group.Group;
+import org.noostak.server.global.common.BaseTimeEntity;
+import org.noostak.server.member.domain.Member;
+import org.noostak.server.group.domain.Group;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @RequiredArgsConstructor
-public class Appointment {
+public class Appointment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +24,7 @@ public class Appointment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_id", nullable = false)
-    private User host;
+    private Member host;
 
     @Embedded
     @AttributeOverride(name = "appointmentName", column = @Column(name = "appointment_name", nullable = false))
@@ -32,18 +33,10 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     private AppointmentStatus appointmentStatus;
 
-    private Long likesCount;
-
     private LocalDateTime date;
 
     private LocalDateTime startTime;
 
     private LocalDateTime endTime;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime modifiedAt;
 
 }

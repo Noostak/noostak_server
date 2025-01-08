@@ -1,4 +1,4 @@
-package org.noostak.server.domain.appointment;
+package org.noostak.server.appointment.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AppointmentStatus {
+    IMPORTANT("중요"),
     SCHEDULE("일정"),
-    MEETING("회의"),
-    SOPT("SOPT"),
+    HOBBY("취미"),
     OTHER("기타");
 
     private final String message;
