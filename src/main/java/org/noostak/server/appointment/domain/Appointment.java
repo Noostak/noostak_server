@@ -3,7 +3,7 @@ package org.noostak.server.appointment.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.noostak.server.global.common.BaseTimeEntity;
+import org.noostak.server.global.entity.BaseTimeEntity;
 import org.noostak.server.member.domain.Member;
 import org.noostak.server.group.domain.Group;
 

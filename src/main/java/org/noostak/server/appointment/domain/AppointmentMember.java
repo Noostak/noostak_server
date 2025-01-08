@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.noostak.server.global.common.BaseTimeEntity;
+import org.noostak.server.global.entity.BaseTimeEntity;
 import org.noostak.server.member.domain.Member;
 
 import java.time.LocalDateTime;

@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.noostak.server.appointment.domain.AppointmentMember;
-import org.noostak.server.global.common.BaseTimeEntity;
+import org.noostak.server.global.entity.BaseTimeEntity;
 import org.noostak.server.option.domain.Option;
 
 @Entity

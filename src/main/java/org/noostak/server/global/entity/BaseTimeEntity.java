@@ -1,4 +1,4 @@
-package org.noostak.server.global.common;
+package org.noostak.server.global.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

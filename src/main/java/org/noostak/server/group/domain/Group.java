@@ -4,10 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.noostak.server.appointment.domain.Appointment;
-import org.noostak.server.global.common.BaseTimeEntity;
+import org.noostak.server.global.entity.BaseTimeEntity;
 import org.noostak.server.member.domain.Member;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
