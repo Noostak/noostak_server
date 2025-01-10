@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.noostak.server.appointment.domain.Appointment;
 import org.noostak.server.global.entity.BaseTimeEntity;
+import org.noostak.server.group.domain.vo.GroupImageUrl;
 import org.noostak.server.group.domain.vo.GroupMemberCount;
 import org.noostak.server.group.domain.vo.GroupName;
 import org.noostak.server.member.domain.MemberGroup;
@@ -35,10 +36,10 @@ public class Group extends BaseTimeEntity {
     @AttributeOverride(name = "groupName", column = @Column(name = "group_name"))
     private GroupName name;
 
-//    @Embedded
-//    @AttributeOverride(name = "url", column = @Column(name = "group_image_url"))
-//    private GroupImageUrl url;
-//
+    @Embedded
+    @AttributeOverride(name = "url", column = @Column(name = "group_image_url"))
+    private GroupImageUrl url;
+
     @Embedded
     @AttributeOverride(name = "count", column = @Column(name = "member_count"))
     private GroupMemberCount memberCount;
