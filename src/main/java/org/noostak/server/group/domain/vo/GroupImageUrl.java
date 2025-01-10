@@ -14,13 +14,17 @@ public class GroupImageUrl {
     }
 
     private GroupImageUrl(String url) {
-        validate(url);
         this.url = url;
     }
 
     public static GroupImageUrl from(String url) {
+        if (url == null) {
+            return new GroupImageUrl();
+        }
+        validate(url);
         return new GroupImageUrl(url);
     }
+
 
     public String value() {
         return url;
