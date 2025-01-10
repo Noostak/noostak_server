@@ -22,9 +22,9 @@ public class Group extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long groupId;
 
-//    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "group_invite_code_id")
-//    private GroupInviteCode groupInviteCode;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "group_invite_code_id")
+    private GroupInviteCode groupInviteCode;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MemberGroup> members = new HashSet<>();
@@ -44,12 +44,12 @@ public class Group extends BaseTimeEntity {
     @AttributeOverride(name = "count", column = @Column(name = "member_count"))
     private GroupMemberCount memberCount;
 
-//    public void addMember() {
-//        this.memberCount = memberCount.increase();
-//    }
-//
-//    public void removeMember() {
-//        this.memberCount = memberCount.decrease();
-//    }
+    public void addMember() {
+        this.memberCount = memberCount.increase();
+    }
+
+    public void removeMember() {
+        this.memberCount = memberCount.decrease();
+    }
 }
 
