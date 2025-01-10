@@ -1,32 +1,34 @@
-package org.noostak.server.group.domain;
+package org.noostak.server.group.domain.vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 
 @Embeddable
 @EqualsAndHashCode
-public class InviteCode {
+public class Code {
 
-    private final String code;
+    private static final int CODE_LENGTH = 6;
 
-    protected InviteCode() {
-        this.code = null;
+    private final String value;
+
+    protected Code() {
+        this.value = null;
     }
 
-    private InviteCode(String code) {
-        validateInviteCode(code);
-        this.code = code;
+    private Code(String code) {
+        validate(code);
+        this.value = code;
     }
 
-    public static InviteCode from(String code) {
-        return new InviteCode(code);
+    public static Code from(String code) {
+        return new Code(code);
     }
 
     public String value() {
-        return code;
+        return value;
     }
 
-    private void validateInviteCode(String code) {
+    private void validate(String code) {
         validateNotEmpty(code);
         validateLength(code);
         validateAlphaNumeric(code);
@@ -39,8 +41,8 @@ public class InviteCode {
     }
 
     private void validateLength(String code) {
-        if (code.length() != 6) {
-            throw new IllegalArgumentException("[ERROR] 초대 코드는 정확히 6자리여야 합니다.");
+        if (code.length() != CODE_LENGTH) {
+            throw new IllegalArgumentException("[ERROR] 초대 코드는 정확히 " + CODE_LENGTH + "자리여야 합니다.");
         }
     }
 
@@ -52,6 +54,6 @@ public class InviteCode {
 
     @Override
     public String toString() {
-        return code;
+        return value;
     }
 }
