@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.noostak.server.appointment.domain.Appointment;
 import org.noostak.server.global.entity.BaseTimeEntity;
-import org.noostak.server.member.domain.Member;
+import org.noostak.server.group.domain.vo.GroupName;
 import org.noostak.server.member.domain.MemberGroup;
 
 import java.util.HashSet;
