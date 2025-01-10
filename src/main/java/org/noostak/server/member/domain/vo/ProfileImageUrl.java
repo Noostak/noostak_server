@@ -13,16 +13,23 @@ public class ProfileImageUrl {
         this.url = null;
     }
 
-    public ProfileImageUrl(String url) {
-        validate(url);
+    private ProfileImageUrl(String url) {
         this.url = url;
+    }
+
+    public static ProfileImageUrl from(String url) {
+        if (url == null) {
+            return new ProfileImageUrl();
+        }
+        validate(url);
+        return new ProfileImageUrl(url);
     }
 
     public String value() {
         return url;
     }
 
-    public static void validate(String url) {
+    private static void validate(String url) {
         validateUrlFormat(url);
     }
 
