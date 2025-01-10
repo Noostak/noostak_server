@@ -20,17 +20,34 @@ public class Group extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long groupId;
 
-    @Embedded
-    @AttributeOverride(name = "groupName", column = @Column(name = "group_name", nullable = false))
-    private GroupName name;
-
-    @Embedded
-    private InviteCodes inviteCodes = InviteCodes.init();
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "group_invite_code_id")
+    private GroupInviteCode groupInviteCode;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<MemberGroup> memberGroups = new HashSet<>();
+    private Set<MemberGroup> members = new HashSet<>();
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Appointment> appointments = new HashSet<>();
+
+    @Embedded
+    @AttributeOverride(name = "groupName", column = @Column(name = "group_name"))
+    private GroupName name;
+
+    @Embedded
+    @AttributeOverride(name = "url", column = @Column(name = "group_image_url"))
+    private GroupImageUrl url;
+
+    @Embedded
+    @AttributeOverride(name = "count", column = @Column(name = "member_count"))
+    private GroupMemberCount memberCount;
+
+    public void addMember() {
+        this.memberCount = memberCount.increase();
+    }
+
+    public void removeMember() {
+        this.memberCount = memberCount.decrease();
+    }
 }
 
