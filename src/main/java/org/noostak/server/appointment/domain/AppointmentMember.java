@@ -4,6 +4,17 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.noostak.server.appointment.domain.vo.AppointmentAvailability;
+import org.noostak.server.global.entity.BaseTimeEntity;
+import org.noostak.server.member.domain.Member;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.noostak.server.appointment.domain.vo.AppointmentAvailability;
 import org.noostak.server.global.entity.BaseTimeEntity;
 import org.noostak.server.member.domain.Member;
 
@@ -14,7 +25,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AppointmentMember extends BaseTimeEntity {
 
-    // TODO : 역할을 부여할 enum? host, member, admin 등등?
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long appointmentMemberId;
