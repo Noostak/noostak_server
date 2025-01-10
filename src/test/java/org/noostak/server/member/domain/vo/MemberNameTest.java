@@ -24,7 +24,7 @@ class MemberNameTest {
                 "영한혼합"
         })
         void shouldCreateMemberNameSuccessfully(String validName) {
-            MemberName memberName = new MemberName(validName);
+            MemberName memberName = MemberName.from(validName);
             assertThat(memberName.value()).isEqualTo(validName);
         }
     }
@@ -37,9 +37,9 @@ class MemberNameTest {
         @DisplayName("이름이 null이거나 비어 있는 경우")
         @NullAndEmptySource
         void shouldThrowExceptionForNullOrEmptyName(String invalidName) {
-            assertThatThrownBy(() -> new MemberName(invalidName))
+            assertThatThrownBy(() -> MemberName.from(invalidName))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("[ERROR] 이름은 비어 있을 수 없습니다.");
+                    .hasMessageContaining("[ERROR] 멤버 이름은 비어 있을 수 없습니다.");
         }
 
         @ParameterizedTest
@@ -49,9 +49,9 @@ class MemberNameTest {
                 "권장순권민성한승우이원진백창연오혜성"
         })
         void shouldThrowExceptionForNameExceedingMaxLength(String invalidName) {
-            assertThatThrownBy(() -> new MemberName(invalidName))
+            assertThatThrownBy(() -> MemberName.from(invalidName))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("[ERROR] 이름의 길이는 15글자를 넘을 수 없습니다.");
+                    .hasMessageContaining("[ERROR] 멤버 이름의 길이는 15글자를 넘을 수 없습니다.");
         }
 
         @ParameterizedTest
@@ -63,9 +63,9 @@ class MemberNameTest {
                 "1234"
         })
         void shouldThrowExceptionForNameWithSpecialCharacters(String invalidName) {
-            assertThatThrownBy(() -> new MemberName(invalidName))
+            assertThatThrownBy(() -> MemberName.from(invalidName))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("[ERROR] 이름은 알파벳 혹은 한글로만 구성이 가능합니다.");
+                    .hasMessageContaining("[ERROR] 멤버 이름은 알파벳 혹은 한글로만 구성이 가능합니다.");
         }
     }
 }
