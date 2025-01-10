@@ -1,4 +1,4 @@
-package org.noostak.server.member.domain;
+package org.noostak.server.member.domain.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

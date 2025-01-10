@@ -5,6 +5,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.noostak.server.appointment.domain.Appointment;
 import org.noostak.server.global.entity.BaseTimeEntity;
+import org.noostak.server.member.domain.vo.AccountStatus;
+import org.noostak.server.member.domain.vo.MemberName;
+import org.noostak.server.member.domain.vo.ProfileImageUrl;
+import org.noostak.server.member.domain.vo.SocialType;
 
 import java.util.HashSet;
 import java.util.Set;
