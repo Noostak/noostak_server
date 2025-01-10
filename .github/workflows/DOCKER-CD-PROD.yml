@@ -2,7 +2,7 @@ name: DOCKER-CD-PROD
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main" ]
 
 jobs:
   ci:
