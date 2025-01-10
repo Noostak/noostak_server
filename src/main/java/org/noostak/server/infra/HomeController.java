@@ -1,4 +1,4 @@
-package org.noostak.server.controller;
+package org.noostak.server.infra;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
