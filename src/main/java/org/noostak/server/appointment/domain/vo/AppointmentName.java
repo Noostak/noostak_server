@@ -3,6 +3,9 @@ package org.noostak.server.appointment.domain.vo;
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 
+import jakarta.persistence.Embeddable;
+import lombok.EqualsAndHashCode;
+
 @Embeddable
 @EqualsAndHashCode
 public class AppointmentName {
@@ -13,9 +16,13 @@ public class AppointmentName {
         this.appointmentName = null;
     }
 
-    public AppointmentName(String appointmentName) {
+    private AppointmentName(String appointmentName) {
         validateAppointmentName(appointmentName);
         this.appointmentName = appointmentName;
+    }
+
+    public static AppointmentName from(String appointmentName) {
+        return new AppointmentName(appointmentName);
     }
 
     public String value() {
@@ -25,7 +32,6 @@ public class AppointmentName {
     private void validateAppointmentName(String appointmentName) {
         validateEmpty(appointmentName);
         validateLength(appointmentName);
-        validateSpecialLetter(appointmentName);
     }
 
     private void validateEmpty(String appointmentName) {
@@ -37,12 +43,6 @@ public class AppointmentName {
     private void validateLength(String appointmentName) {
         if (appointmentName.length() > 30) {
             throw new IllegalArgumentException("[ERROR] 약속 이름의 길이는 30글자를 넘을 수 없습니다.");
-        }
-    }
-
-    private void validateSpecialLetter(String appointmentName) {
-        if (!appointmentName.chars().allMatch(Character::isAlphabetic)) {
-            throw new IllegalArgumentException("[ERROR] 약속 이름은 알파벳 혹은 한글로만 구성이 가능합니다.");
         }
     }
 
