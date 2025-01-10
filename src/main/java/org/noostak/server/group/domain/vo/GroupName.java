@@ -12,9 +12,13 @@ public class GroupName {
         this.groupName = null;
     }
 
-    public GroupName(String groupName) {
+    private GroupName(String groupName) {
         validateGroupName(groupName);
         this.groupName = groupName;
+    }
+
+    public static GroupName from(String groupName) {
+        return new GroupName(groupName);
     }
 
     public String value() {
@@ -34,7 +38,7 @@ public class GroupName {
     }
 
     private void validateLength(String groupName) {
-        if (groupName.length() > 20) { // 그룹 이름은 최대 20자로 제한
+        if (groupName.length() > 20) {
             throw new IllegalArgumentException("[ERROR] 그룹 이름의 길이는 20글자를 넘을 수 없습니다.");
         }
     }
