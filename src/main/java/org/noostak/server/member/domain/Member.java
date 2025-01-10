@@ -3,8 +3,9 @@ package org.noostak.server.member.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.noostak.server.appointment.domain.Appointment;
+import org.noostak.server.appointment.domain.AppointmentMember;
 import org.noostak.server.global.entity.BaseTimeEntity;
+import org.noostak.server.member.domain.vo.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,12 +19,14 @@ public class Member extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
 
-    // TODO: 모든 연관관계 orphanRemoval 추가할건지
-    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Appointment> hostedAppointments = new HashSet<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MemberGroup> memberGroups = new HashSet<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<AppointmentMember> appointmentMember = new HashSet<>();
 
     @Embedded
-    @AttributeOverride(name = "memberName", column = @Column(name = "member_name", nullable = false))
+    @AttributeOverride(name = "memberName", column = @Column(name = "member_name"))
     private MemberName name;
 
     @Embedded
@@ -31,14 +34,13 @@ public class Member extends BaseTimeEntity {
     private ProfileImageUrl url;
 
     @Enumerated(EnumType.STRING)
-    private SocialType socialLoginType;
-
-    @Column(nullable = false)
-    private String socialId;
-
-    @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus;
 
-    private String refreshToken;
+    @Enumerated(EnumType.STRING)
+    private SocialType socialLoginType;
 
+    @Embedded
+    private SocialId socialId;
+
+    private String refreshToken;
 }

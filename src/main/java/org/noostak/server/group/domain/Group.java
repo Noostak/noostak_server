@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.noostak.server.appointment.domain.Appointment;
 import org.noostak.server.global.entity.BaseTimeEntity;
 import org.noostak.server.member.domain.Member;
+import org.noostak.server.member.domain.MemberGroup;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,13 +25,12 @@ public class Group extends BaseTimeEntity {
     private GroupName name;
 
     @Embedded
-//    @AttributeOverride(name = ) // TODO: 컬렉션으로 관리해야할지, 하게되면 테이블 만들어야 됨. 중복 관리? 안하면 그냥 필드
     private InviteCodes inviteCodes = InviteCodes.init();
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Member> members = new HashSet<>();
+    private Set<MemberGroup> memberGroups = new HashSet<>();
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Appointment> appointments = new HashSet<>();
-
 }
+
