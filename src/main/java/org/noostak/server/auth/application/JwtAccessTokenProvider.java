@@ -4,28 +4,29 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
-@Component
 @RequiredArgsConstructor
 public class JwtAccessTokenProvider {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final Clock clock;
-
-    @Value("${jwt.expiration.access-token}")
     private Long accessTokenExpirationTime;
+
+    public JwtAccessTokenProvider(JwtTokenProvider jwtTokenProvider, Clock clock, Long accessTokenExpirationTime) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.clock = clock;
+        this.accessTokenExpirationTime = accessTokenExpirationTime;
+    }
 
     public String issueToken(Authentication authentication, List<String> roles) {
         final Instant nowInstant = clock.instant();
-        final Date now = Date.from(nowInstant); // Instant -> Date 변환
+        final Date now = Date.from(nowInstant);
         final Date expiration = Date.from(nowInstant.plusMillis(accessTokenExpirationTime));
 
         Claims claims = JwtClaimsBuilder.buildClaims(authentication, roles, now, expiration);
