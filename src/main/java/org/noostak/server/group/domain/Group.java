@@ -16,6 +16,7 @@ import java.util.Set;
 @Entity
 @Getter
 @RequiredArgsConstructor
+@Table(name = "groups")
 public class Group extends BaseTimeEntity {
 
     @Id
