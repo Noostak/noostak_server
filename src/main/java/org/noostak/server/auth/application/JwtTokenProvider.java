@@ -4,6 +4,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,7 @@ public class JwtTokenProvider {
     private String jwtSecret;
 
     @Getter
+    @Setter
     private SecretKey signingKey;
 
     @PostConstruct
