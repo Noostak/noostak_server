@@ -21,23 +21,19 @@ class JwtRefreshTokenProviderTest {
     private JwtTokenProvider jwtTokenProvider;
     private Clock fixedClock;
     private final String jwtSecret = "my-refresh-token-secret-key-my-refresh-token-secret-key";
-    private final long refreshTokenExpirationTime = 3600000L; // 1시간
+    private final long refreshTokenExpirationTime = 3600000L;
 
     @BeforeEach
     void setUp() {
-        // SecretKey 생성
         SecretKey signingKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
 
-        // JwtTokenProvider 초기화
         jwtTokenProvider = new JwtTokenProvider();
         jwtTokenProvider.setSigningKey(signingKey);
 
-        // 고정된 Clock 설정
         fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
-        // JwtRefreshTokenProvider 초기화
         jwtRefreshTokenProvider = new JwtRefreshTokenProvider(jwtTokenProvider, fixedClock);
-        jwtRefreshTokenProvider.setRefreshTokenExpirationTime(refreshTokenExpirationTime); // 명시적 값 설정
+        jwtRefreshTokenProvider.setRefreshTokenExpirationTime(refreshTokenExpirationTime);
     }
 
     @Test
@@ -51,15 +47,14 @@ class JwtRefreshTokenProviderTest {
         assertThat(claims).isNotNull();
         assertThat(claims.getId()).isNotBlank();
 
-        // 발급 시점과 만료 시점 검증
         Date issuedAt = claims.getIssuedAt();
         Date expiration = claims.getExpiration();
 
         assertThat(Math.abs(issuedAt.getTime() - Date.from(fixedClock.instant()).getTime()))
-                .isLessThan(1000); // 1초 이내의 차이를 허용
+                .isLessThan(1000);
 
         assertThat(Math.abs(expiration.getTime() - Date.from(fixedClock.instant().plusMillis(refreshTokenExpirationTime)).getTime()))
-                .isLessThan(1000); // 1초 이내의 차이를 허용
+                .isLessThan(1000);
     }
 
     @Test
@@ -90,13 +85,12 @@ class JwtRefreshTokenProviderTest {
     @DisplayName("유효하지 않은 토큰 검증 - 만료된 토큰")
     void getClaimsFromToken_shouldThrowExceptionForExpiredToken() {
         // Given
-        Instant pastInstant = fixedClock.instant().minusMillis(refreshTokenExpirationTime + 1000L); // 만료 시간 초과
+        Instant pastInstant = fixedClock.instant().minusMillis(refreshTokenExpirationTime + 1000L);
         Clock expiredClock = Clock.fixed(pastInstant, ZoneId.systemDefault());
 
         JwtRefreshTokenProvider expiredProvider = new JwtRefreshTokenProvider(jwtTokenProvider, expiredClock);
-        expiredProvider.setRefreshTokenExpirationTime(refreshTokenExpirationTime); // 값 설정 추가
+        expiredProvider.setRefreshTokenExpirationTime(refreshTokenExpirationTime);
 
-        // Expired token 생성
         String expiredToken = expiredProvider.issueToken();
 
         // When & Then
