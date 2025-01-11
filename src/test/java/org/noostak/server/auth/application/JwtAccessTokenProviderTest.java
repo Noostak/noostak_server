@@ -27,14 +27,12 @@ class JwtAccessTokenProviderTest {
 
     @BeforeEach
     void setUp() {
-        // SecretKey 생성
+
         SecretKey signingKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
 
-        // JwtTokenProvider 초기화
         jwtTokenProvider = new JwtTokenProvider();
         jwtTokenProvider.setSigningKey(signingKey);
 
-        // 테스트용 고정된 시간 설정 (현재시간 + 30분)
         fixedClock = Clock.offset(Clock.systemDefaultZone(), java.time.Duration.ofMinutes(30));
         jwtAccessTokenProvider = new JwtAccessTokenProvider(jwtTokenProvider, fixedClock, 3600000L);
     }
@@ -104,7 +102,6 @@ class JwtAccessTokenProviderTest {
                 new UsernamePasswordAuthenticationToken("testUser", null);
         List<String> roles = Arrays.asList("ROLE_USER", "ROLE_ADMIN");
 
-        // Expired token 생성
         Instant pastInstant = fixedClock.instant().minusMillis(3600000L); // 1시간 전
         Clock expiredClock = Clock.fixed(pastInstant, ZoneId.of("UTC"));
         JwtAccessTokenProvider expiredTokenProvider = new JwtAccessTokenProvider(jwtTokenProvider, expiredClock, 1000L);
