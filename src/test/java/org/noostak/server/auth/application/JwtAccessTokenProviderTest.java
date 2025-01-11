@@ -39,13 +39,20 @@ class JwtAccessTokenProviderTest {
         jwtAccessTokenProvider = new JwtAccessTokenProvider(jwtTokenProvider, fixedClock, 3600000L);
     }
 
+    private UsernamePasswordAuthenticationToken createAuthentication(String username) {
+        return new UsernamePasswordAuthenticationToken(username, null);
+    }
+
+    private List<String> createRoles(String... roles) {
+        return Arrays.asList(roles);
+    }
+
     @Test
     @DisplayName("액세스 토큰 발급 - 정상적인 입력값")
     void issueToken_shouldReturnValidToken() {
         // Given
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken("testUser", null);
-        List<String> roles = Arrays.asList("ROLE_USER", "ROLE_ADMIN");
+        UsernamePasswordAuthenticationToken authentication = createAuthentication("testUser");
+        List<String> roles = createRoles("ROLE_USER", "ROLE_ADMIN");
 
         // When
         String token = jwtAccessTokenProvider.issueToken(authentication, roles);
