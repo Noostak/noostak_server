@@ -2,9 +2,10 @@ package org.noostak.server.global.success.core;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.noostak.server.global.success.handler.SuccessCode;
+import org.springframework.http.HttpStatus;
 
 public record SuccessResponse<T>(
-        int status,
+        HttpStatus status,
         String message,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         T result
