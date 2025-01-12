@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @SpringBootTest
-public class CreateGroupTest {
+public class CreateGroupServiceTest {
 
     @Autowired
     private GroupRepositoryTest groupRepository;
