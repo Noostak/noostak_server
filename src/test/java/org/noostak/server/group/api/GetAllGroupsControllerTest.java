@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.noostak.server.group.domain.Group;
 import org.noostak.server.group.domain.GroupRepository;
 import org.noostak.server.group.domain.vo.GroupImageUrl;
-import org.noostak.server.group.domain.vo.GroupMemberCount;
 import org.noostak.server.group.domain.vo.GroupName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class GroupControllerTest {
+class GetAllGroupsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -29,18 +28,20 @@ class GroupControllerTest {
 
     @BeforeEach
     void setUp() {
-        // 테스트 데이터 초기화
+        Long firstLeaderId = 1L;
+        Long secondLeaderId = 2L;
+
         groupRepository.deleteAll();
         groupRepository.save(Group.of(
+                firstLeaderId,
                 GroupName.from("Group 1"),
                 GroupImageUrl.from("https://example.com/group1.png"),
-                GroupMemberCount.from(10L),
                 "123ABC"
         ));
         groupRepository.save(Group.of(
+                secondLeaderId,
                 GroupName.from("Group 2"),
                 GroupImageUrl.from("https://example.com/group2.png"),
-                GroupMemberCount.from(20L),
                 "ABC456"
         ));
     }
