@@ -1,6 +1,8 @@
 package org.noostak.server.global.success.handler;
 
+import org.springframework.http.HttpStatus;
+
 public interface SuccessCode {
-    int getStatus();
+    HttpStatus getStatus();
     String getMessage();
 }
