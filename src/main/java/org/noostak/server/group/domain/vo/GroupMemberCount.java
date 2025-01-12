@@ -2,6 +2,8 @@ package org.noostak.server.group.domain.vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
+import org.noostak.server.group.common.GroupErrorCode;
+import org.noostak.server.group.common.GroupException;
 
 @Embeddable
 @EqualsAndHashCode
@@ -16,11 +18,12 @@ public class GroupMemberCount {
     }
 
     private GroupMemberCount(Long count) {
-        validate(count);
+        validateChange(count);
         this.count = count;
     }
 
     public static GroupMemberCount from(Long count) {
+        validateInitial(count);
         return new GroupMemberCount(count);
     }
 
@@ -30,30 +33,36 @@ public class GroupMemberCount {
 
     public GroupMemberCount increase() {
         Long updatedCount = this.count + 1;
-        validate(updatedCount);
+        validateChange(updatedCount);
         return new GroupMemberCount(updatedCount);
     }
 
     public GroupMemberCount decrease() {
         Long updatedCount = this.count - 1;
-        validate(updatedCount);
+        validateChange(updatedCount);
         return new GroupMemberCount(updatedCount);
     }
 
-    private void validate(Long count) {
+    private static void validateInitial(Long count) {
+        if (count < 0) {
+            throw new GroupException(GroupErrorCode.MEMBER_COUNT_INITIAL_NEGATIVE);
+        }
+    }
+
+    private static void validateChange(Long count) {
         validateNonNegative(count);
         validateMaxLimit(count);
     }
 
-    private void validateNonNegative(Long count) {
+    private static void validateNonNegative(Long count) {
         if (count < 0) {
-            throw new IllegalArgumentException("[ERROR] 그룹 멤버 수는 음수가 될 수 없습니다.");
+            throw new GroupException(GroupErrorCode.MEMBER_COUNT_NEGATIVE);
         }
     }
 
-    private void validateMaxLimit(Long count) {
+    private static void validateMaxLimit(Long count) {
         if (count > MAX_MEMBERS) {
-            throw new IllegalArgumentException("[ERROR] 그룹 멤버 수는 최대 " + MAX_MEMBERS + "명을 초과할 수 없습니다.");
+            throw new GroupException(GroupErrorCode.MEMBER_COUNT_EXCEEDS_MAX_LIMIT);
         }
     }
 
