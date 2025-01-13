@@ -29,5 +29,12 @@ public class S3Service {
         return UUID.randomUUID() + ".jpg";
     }
 
+    private void validateExtension(MultipartFile image) {
+        String contentType = image.getContentType();
+        if (!IMAGE_EXTENSIONS.contains(contentType)) {
+            throw new RuntimeException("이미지 확장자는 jpg, png, webp만 가능합니다.");
+        }
+    }
+
 }
 
