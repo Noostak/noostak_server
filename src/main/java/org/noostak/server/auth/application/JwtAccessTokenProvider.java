@@ -16,18 +16,12 @@ public class JwtAccessTokenProvider {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final Clock clock;
-    private Long accessTokenExpirationTime;
-
-    public JwtAccessTokenProvider(JwtTokenProvider jwtTokenProvider, Clock clock, Long accessTokenExpirationTime) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.clock = clock;
-        this.accessTokenExpirationTime = accessTokenExpirationTime;
-    }
+    private final Long ACCESS_TOKEN_EXPIRATION_TIME = 3600000L;
 
     public String issueToken(Authentication authentication, List<String> roles) {
         final Instant nowInstant = clock.instant();
         final Date now = Date.from(nowInstant);
-        final Date expiration = Date.from(nowInstant.plusMillis(accessTokenExpirationTime));
+        final Date expiration = Date.from(nowInstant.plusMillis(ACCESS_TOKEN_EXPIRATION_TIME));
 
         Claims claims = JwtClaimsBuilder.buildClaims(authentication, roles, now, expiration);
 
