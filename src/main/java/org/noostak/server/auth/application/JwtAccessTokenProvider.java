@@ -18,6 +18,9 @@ public class JwtAccessTokenProvider {
     private final Clock clock;
     private final Long ACCESS_TOKEN_EXPIRATION_TIME = 3600000L;
 
+    private static final String JWT_TYPE = "JWT";
+    private static final String ROLES_CLAIM = "roles";
+
     public String issueToken(Authentication authentication, List<String> roles) {
         final Instant nowInstant = clock.instant();
         final Date now = Date.from(nowInstant);
@@ -26,7 +29,7 @@ public class JwtAccessTokenProvider {
         Claims claims = JwtClaimsBuilder.buildClaims(authentication, roles, now, expiration);
 
         return Jwts.builder()
-                .setHeaderParam("typ", "JWT")
+                .setHeaderParam("typ", JWT_TYPE)
                 .setClaims(claims)
                 .signWith(SignatureAlgorithm.HS256, jwtTokenProvider.getSigningKey())
                 .compact();
@@ -46,7 +49,7 @@ public class JwtAccessTokenProvider {
             claims.setSubject(authentication.getName());
             claims.setIssuedAt(now);
             claims.setExpiration(expiration);
-            claims.put("roles", roles);
+            claims.put(ROLES_CLAIM, roles);
             return claims;
         }
     }
