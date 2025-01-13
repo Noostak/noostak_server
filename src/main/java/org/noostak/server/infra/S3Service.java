@@ -25,6 +25,25 @@ public class S3Service {
         this.awsConfig = awsConfig;
     }
 
+    public String uploadImage(String directoryPath, MultipartFile image) throws IOException {
+        final String key = directoryPath + generateImageFileName();
+        final S3Client s3Client = awsConfig.getS3Client();
+
+        validateExtension(image);
+        validateFileSize(image);
+
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(image.getContentType())
+                .contentDisposition("inline")
+                .build();
+
+        RequestBody requestBody = RequestBody.fromBytes(image.getBytes());
+        s3Client.putObject(request, requestBody);
+        return key;
+    }
+
     private String generateImageFileName() {
         return UUID.randomUUID() + ".jpg";
     }
