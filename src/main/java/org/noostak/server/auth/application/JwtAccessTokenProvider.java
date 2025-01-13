@@ -16,17 +16,17 @@ public class JwtAccessTokenProvider {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final Clock clock;
+    private final JwtClaimsBuilder jwtClaimsBuilder;
     private final Long ACCESS_TOKEN_EXPIRATION_TIME = 3600000L;
 
     private static final String JWT_TYPE = "JWT";
-    private static final String ROLES_CLAIM = "roles";
 
     public String issueToken(Authentication authentication, List<String> roles) {
         final Instant nowInstant = clock.instant();
         final Date now = Date.from(nowInstant);
         final Date expiration = Date.from(nowInstant.plusMillis(ACCESS_TOKEN_EXPIRATION_TIME));
 
-        Claims claims = JwtClaimsBuilder.buildClaims(authentication, roles, now, expiration);
+        Claims claims = jwtClaimsBuilder.buildClaims(authentication, roles, now, expiration); // DI 주입된 객체 사용
 
         return Jwts.builder()
                 .setHeaderParam("typ", JWT_TYPE)
@@ -41,16 +41,5 @@ public class JwtAccessTokenProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    static class JwtClaimsBuilder {
-        public static Claims buildClaims(Authentication authentication, List<String> roles, Date now, Date expiration) {
-            Claims claims = Jwts.claims();
-            claims.setSubject(authentication.getName());
-            claims.setIssuedAt(now);
-            claims.setExpiration(expiration);
-            claims.put(ROLES_CLAIM, roles);
-            return claims;
-        }
     }
 }
