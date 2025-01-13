@@ -5,6 +5,7 @@ import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.noostak.server.auth.common.AuthException;
 
 import javax.crypto.SecretKey;
 import java.time.Clock;
@@ -93,7 +94,8 @@ class JwtRefreshTokenProviderTest {
         String expiredToken = expiredProvider.issueToken();
 
         // When & Then
-        assertThrows(io.jsonwebtoken.ExpiredJwtException.class, () ->
+        AuthException exception = assertThrows(AuthException.class, () ->
                 jwtRefreshTokenProvider.getClaimsFromToken(expiredToken));
+        assertThat(exception.getCause()).isInstanceOf(io.jsonwebtoken.ExpiredJwtException.class);
     }
 }
