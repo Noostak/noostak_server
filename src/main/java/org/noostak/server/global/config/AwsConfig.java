@@ -1,7 +1,9 @@
 package org.noostak.server.global.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import software.amazon.awssdk.auth.credentials.SystemPropertyCredentialsProvider;
 
 @Configuration
 public class AwsConfig {
@@ -16,5 +18,12 @@ public class AwsConfig {
         this.accessKey = accessKey;
         this.secretKey = secretKey;
         this.regionString = regionString;
+    }
+
+    @Bean
+    public SystemPropertyCredentialsProvider systemPropertyCredentialsProvider() {
+        System.setProperty("aws.accessKeyId", accessKey);
+        System.setProperty("aws.secretAccessKey", secretKey);
+        return SystemPropertyCredentialsProvider.create();
     }
 }
