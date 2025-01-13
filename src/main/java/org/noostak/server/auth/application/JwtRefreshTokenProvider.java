@@ -25,13 +25,13 @@ public class JwtRefreshTokenProvider {
     private static final String JWT_TYPE = "JWT";
 
     public String issueToken() {
-        final Instant nowInstant = clock.instant();
-        final Date now = Date.from(nowInstant);
-        final Date expiration = Date.from(nowInstant.plusMillis(REFRESH_TOKEN_EXPIRATION_TIME));
+        final Instant currentInstant = clock.instant();
+        final Date currentDate = Date.from(currentInstant);
+        final Date expiration = Date.from(currentInstant.plusMillis(REFRESH_TOKEN_EXPIRATION_TIME));
 
         final Claims claims = Jwts.claims()
                 .setId(UUID.randomUUID().toString())
-                .setIssuedAt(now)
+                .setIssuedAt(currentDate)
                 .setExpiration(expiration);
 
         return Jwts.builder()
