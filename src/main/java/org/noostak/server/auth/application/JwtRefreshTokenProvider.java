@@ -41,6 +41,13 @@ public class JwtRefreshTokenProvider {
                 .compact();
     }
 
+    private Claims createClaims(Date issuedAt, Date expiration) {
+        return Jwts.claims()
+                .setId(UUID.randomUUID().toString())
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiration);
+    }
+
     public Claims getClaimsFromToken(String token) {
         try {
             return Jwts.parserBuilder()
