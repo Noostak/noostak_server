@@ -76,10 +76,13 @@ class JwtRefreshTokenProviderTest {
     @DisplayName("유효하지 않은 토큰 검증 - 잘못된 서명")
     void getClaimsFromToken_shouldThrowExceptionForInvalidSignature() {
         // Given
-        String invalidToken = "invalid.token.string";
+        String validHeaderPayload = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VySWQiLCJpYXQiOjE2MjkxMjg2MDAsImV4cCI6MTYyOTEyODk2MH0";
+        String invalidToken = validHeaderPayload + ".invalid-signature";
 
         // When & Then
-        assertThrows(Exception.class, () -> jwtRefreshTokenProvider.getClaimsFromToken(invalidToken));
+        AuthException exception = assertThrows(AuthException.class, () ->
+                jwtRefreshTokenProvider.getClaimsFromToken(invalidToken));
+        assertThat(exception.getCause()).isInstanceOf(io.jsonwebtoken.SignatureException.class);
     }
 
     @Test
