@@ -28,7 +28,7 @@ public class JwtAccessTokenProvider {
         final Date now = Date.from(nowInstant);
         final Date expiration = Date.from(nowInstant.plusMillis(ACCESS_TOKEN_EXPIRATION_TIME));
 
-        Claims claims = jwtClaimsBuilder.buildClaims(authentication, roles, now, expiration); // DI 주입된 객체 사용
+        Claims claims = jwtClaimsBuilder.buildClaims(authentication, roles, now, expiration);
 
         return Jwts.builder()
                 .setHeaderParam("typ", JWT_TYPE)
