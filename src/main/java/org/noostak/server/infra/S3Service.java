@@ -36,5 +36,13 @@ public class S3Service {
         }
     }
 
+    private static final Long MAX_FILE_SIZE = 5 * 1024 * 1024L;
+
+    private void validateFileSize(MultipartFile image) {
+        if (image.getSize() > MAX_FILE_SIZE) {
+            throw new RuntimeException("이미지 사이즈는 5MB를 넘을 수 없습니다.");
+        }
+    }
+
 }
 
