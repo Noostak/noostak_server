@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.SystemPropertyCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 
 @Configuration
 public class AwsConfig {
@@ -26,4 +27,10 @@ public class AwsConfig {
         System.setProperty("aws.secretAccessKey", secretKey);
         return SystemPropertyCredentialsProvider.create();
     }
+
+    @Bean
+    public Region getRegion() {
+        return Region.of(regionString);
+    }
+
 }
