@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class JwtAccessTokenProviderTest {
 
     private JwtTokenProvider jwtTokenProvider;
+    private JwtClaimsBuilder jwtClaimsBuilder;
     private final String jwtSecret = "my-test-secret-key-my-test-secret-key";
 
     @BeforeEach
@@ -26,6 +27,7 @@ class JwtAccessTokenProviderTest {
         SecretKey signingKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         jwtTokenProvider = new JwtTokenProvider();
         jwtTokenProvider.setSigningKey(signingKey);
+        jwtClaimsBuilder = new DefaultJwtClaimsBuilder();
     }
 
     private Clock createClock(Instant instant) {
@@ -33,7 +35,7 @@ class JwtAccessTokenProviderTest {
     }
 
     private JwtAccessTokenProvider createJwtAccessTokenProvider(Clock clock, long expirationTime) {
-        return new JwtAccessTokenProvider(jwtTokenProvider, clock);
+        return new JwtAccessTokenProvider(jwtTokenProvider, clock, jwtClaimsBuilder);
     }
 
     private UsernamePasswordAuthenticationToken createAuthentication(String username) {
