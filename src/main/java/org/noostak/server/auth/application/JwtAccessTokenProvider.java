@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.noostak.server.auth.common.AuthErrorCode;
+import org.noostak.server.auth.common.AuthException;
 import org.springframework.security.core.Authentication;
 
 import java.time.Clock;
@@ -36,10 +38,24 @@ public class JwtAccessTokenProvider {
     }
 
     public Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(jwtTokenProvider.getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(jwtTokenProvider.getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            throw new AuthException(AuthErrorCode.EXPIRED_JWT_TOKEN, e);
+        } catch (io.jsonwebtoken.SignatureException e) {
+            throw new AuthException(AuthErrorCode.INVALID_JWT_TOKEN, e);
+        } catch (io.jsonwebtoken.UnsupportedJwtException e) {
+            throw new AuthException(AuthErrorCode.UNSUPPORTED_JWT_TOKEN, e);
+        } catch (io.jsonwebtoken.MalformedJwtException e) {
+            throw new AuthException(AuthErrorCode.INVALID_JWT_TOKEN, e);
+        } catch (IllegalArgumentException e) {
+            throw new AuthException(AuthErrorCode.EMPTY_JWT, e);
+        } catch (Exception e) {
+            throw new AuthException(AuthErrorCode.INVALID_JWT_TOKEN, e);
+        }
     }
 }
