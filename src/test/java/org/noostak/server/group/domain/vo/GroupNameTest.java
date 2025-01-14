@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.noostak.server.group.common.GroupErrorCode;
+import org.noostak.server.group.common.GroupException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -42,8 +44,8 @@ class GroupNameTest {
         @NullAndEmptySource
         void shouldThrowExceptionForNullOrEmptyName(String invalidName) {
             assertThatThrownBy(() -> GroupName.from(invalidName))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("[ERROR] 그룹 이름은 비어 있을 수 없습니다.");
+                    .isInstanceOf(GroupException.class)
+                    .hasMessageContaining(GroupErrorCode.GROUP_NAME_NOT_EMPTY.getMessage());
         }
 
         @ParameterizedTest
@@ -54,8 +56,8 @@ class GroupNameTest {
         })
         void shouldThrowExceptionForNameExceedingMaxLength(String invalidName) {
             assertThatThrownBy(() -> GroupName.from(invalidName))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("[ERROR] 그룹 이름의 길이는 30글자를 넘을 수 없습니다.");
+                    .isInstanceOf(GroupException.class)
+                    .hasMessageContaining(GroupErrorCode.INVALID_GROUP_NAME_LENGTH.getMessage());
         }
     }
 }
