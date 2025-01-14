@@ -1,6 +1,8 @@
 package org.noostak.server.infra;
 
 import org.noostak.server.global.config.AwsConfig;
+import org.noostak.server.infra.error.S3UploadErrorCode;
+import org.noostak.server.infra.error.S3UploadException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,15 +65,15 @@ public class S3Service {
     private void validateExtension(MultipartFile image) {
         String contentType = image.getContentType();
         if (!IMAGE_EXTENSIONS.contains(contentType)) {
-            throw new RuntimeException("이미지 확장자는 jpg, png, webp만 가능합니다.");
+            throw new S3UploadException(S3UploadErrorCode.INVALID_EXTENSION);
         }
     }
 
-    private static final Long MAX_FILE_SIZE = 5 * 1024 * 1024L;
+    private static final Long MAX_FILE_SIZE = 2 * 1024 * 1024L;
 
     private void validateFileSize(MultipartFile image) {
         if (image.getSize() > MAX_FILE_SIZE) {
-            throw new RuntimeException("이미지 사이즈는 5MB를 넘을 수 없습니다.");
+            throw new S3UploadException(S3UploadErrorCode.FILE_SIZE_EXCEEDED);
         }
     }
 

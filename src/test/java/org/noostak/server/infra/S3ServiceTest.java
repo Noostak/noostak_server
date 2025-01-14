@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.noostak.server.global.config.AwsConfig;
 
+import org.noostak.server.infra.error.S3UploadErrorCode;
+import org.noostak.server.infra.error.S3UploadException;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -27,7 +29,7 @@ class S3ServiceTest {
     private final S3Service s3Service = new S3Service(bucketName, awsConfig);
 
     @Nested
-    @DisplayName("Image Upload Tests")
+    @DisplayName("이미지 업로드 테스트")
     class UploadImageTests {
 
         @Test
@@ -67,8 +69,8 @@ class S3ServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> s3Service.uploadImage(directoryPath, image))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("이미지 확장자는 jpg, png, webp만 가능합니다.");
+                .isInstanceOf(S3UploadException.class)
+                .hasMessageContaining(S3UploadErrorCode.INVALID_EXTENSION.getMessage());
     }
 
     @Test
@@ -85,12 +87,12 @@ class S3ServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> s3Service.uploadImage(directoryPath, image))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("이미지 사이즈는 5MB를 넘을 수 없습니다.");
+                .isInstanceOf(S3UploadException.class)
+                .hasMessageContaining(S3UploadErrorCode.FILE_SIZE_EXCEEDED.getMessage());
     }
 
     @Nested
-    @DisplayName("Image Delete Tests")
+    @DisplayName("이미지 삭제 테스트")
     class DeleteImageTests {
 
         @Test
