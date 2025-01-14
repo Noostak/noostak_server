@@ -2,6 +2,8 @@ package org.noostak.server.group.domain.vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
+import org.noostak.server.group.common.GroupErrorCode;
+import org.noostak.server.group.common.GroupException;
 
 @Embeddable
 @EqualsAndHashCode
@@ -36,7 +38,7 @@ public class GroupImageUrl {
 
     private static void validateUrlFormat(String url) {
         if (!url.matches("^(http|https)://.*$")) {
-            throw new IllegalArgumentException("[ERROR] 그룹 이미지 URL은 유효한 URL이어야 합니다.");
+            throw new GroupException(GroupErrorCode.INVALID_GROUP_IMAGE_URL);
         }
     }
 

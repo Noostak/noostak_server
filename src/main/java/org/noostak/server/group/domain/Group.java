@@ -45,15 +45,18 @@ public class Group extends BaseTimeEntity {
     @AttributeOverride(name = "count", column = @Column(name = "member_count"))
     private GroupMemberCount memberCount;
 
-    private Group(final GroupName name, final GroupImageUrl url, GroupMemberCount memberCount, final String inviteCode) {
+    private Long groupLeaderId;
+
+    private Group(final Long groupLeaderId, final GroupName name, final GroupImageUrl url, final String inviteCode) {
+        this.groupLeaderId = groupLeaderId;
         this.name = name;
         this.url = url;
-        this.memberCount = GroupMemberCount.from(memberCount.value());
+        this.memberCount = GroupMemberCount.from(1L);
         this.groupInviteCode = GroupInviteCode.from(inviteCode);
     }
 
-    public static Group of(final GroupName name, final GroupImageUrl url, final GroupMemberCount memberCount, final String inviteCode) {
-        return new Group(name, url, memberCount, inviteCode);
+    public static Group of(final Long groupLeaderId, final GroupName name, final GroupImageUrl url, final String inviteCode) {
+        return new Group(groupLeaderId, name, url, inviteCode);
     }
 
     public void addMember() {

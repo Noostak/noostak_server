@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
+import org.noostak.server.group.common.GroupErrorCode;
+import org.noostak.server.group.common.GroupException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -68,8 +70,8 @@ class GroupImageUrlTest {
 
             // When & Then
             assertThatThrownBy(() -> GroupImageUrl.from(url))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("[ERROR] 그룹 이미지 URL은 유효한 URL이어야 합니다.");
+                    .isInstanceOf(GroupException.class)
+                    .hasMessageContaining(GroupErrorCode.INVALID_GROUP_IMAGE_URL.getMessage());
         }
     }
 }
