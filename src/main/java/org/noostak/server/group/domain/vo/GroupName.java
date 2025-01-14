@@ -2,6 +2,8 @@ package org.noostak.server.group.domain.vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
+import org.noostak.server.group.common.GroupErrorCode;
+import org.noostak.server.group.common.GroupException;
 
 @Embeddable
 @EqualsAndHashCode
@@ -32,13 +34,13 @@ public class GroupName {
 
     private void validateEmpty(String groupName) {
         if (groupName == null || groupName.isBlank()) {
-            throw new IllegalArgumentException("[ERROR] 그룹 이름은 비어 있을 수 없습니다.");
+            throw new GroupException(GroupErrorCode.GROUP_NAME_NOT_EMPTY);
         }
     }
 
     private void validateLength(String groupName) {
         if (groupName.length() > 30) {
-            throw new IllegalArgumentException("[ERROR] 그룹 이름의 길이는 30글자를 넘을 수 없습니다.");
+            throw new GroupException(GroupErrorCode.INVALID_GROUP_NAME_LENGTH);
         }
     }
 

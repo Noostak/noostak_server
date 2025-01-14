@@ -2,6 +2,8 @@ package org.noostak.server.group.domain.vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
+import org.noostak.server.group.common.GroupErrorCode;
+import org.noostak.server.group.common.GroupException;
 
 @Embeddable
 @EqualsAndHashCode
@@ -36,19 +38,19 @@ public class Code {
 
     private void validateNotEmpty(String code) {
         if (code == null || code.isBlank()) {
-            throw new IllegalArgumentException("[ERROR] 초대 코드는 비어 있을 수 없습니다.");
+            throw new GroupException(GroupErrorCode.INVITE_CODE_NOT_EMPTY);
         }
     }
 
     private void validateLength(String code) {
         if (code.length() != CODE_LENGTH) {
-            throw new IllegalArgumentException("[ERROR] 초대 코드는 정확히 " + CODE_LENGTH + "자리여야 합니다.");
+            throw new GroupException(GroupErrorCode.INVALID_INVITE_CODE_LENGTH);
         }
     }
 
     private void validateAlphaNumeric(String code) {
         if (!code.matches("^[a-zA-Z0-9]+$")) {
-            throw new IllegalArgumentException("[ERROR] 초대 코드는 숫자와 알파벳으로만 구성되어야 합니다.");
+            throw new GroupException(GroupErrorCode.INVALID_INVITE_CODE_ALPHA_NUMERIC_ONLY);
         }
     }
 
