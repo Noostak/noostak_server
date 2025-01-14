@@ -3,12 +3,14 @@ package org.noostak.server.infra;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.noostak.server.global.config.AwsConfig;
 
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -87,5 +89,28 @@ class S3ServiceTest {
                 .hasMessageContaining("이미지 사이즈는 5MB를 넘을 수 없습니다.");
     }
 
+    @Nested
+    @DisplayName("Image Delete Tests")
+    class DeleteImageTests {
+
+        @Test
+        @DisplayName("이미지 삭제 - 성공")
+        void deleteImage_success() throws IOException {
+            // Given
+            String key = "images/test.jpg";
+            when(awsConfig.getS3Client()).thenReturn(s3Client);
+
+            // When
+            s3Service.deleteImage(key);
+
+            // Then
+            ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+            verify(s3Client).deleteObject(captor.capture());
+
+            DeleteObjectRequest capturedRequest = captor.getValue();
+            assertThat(capturedRequest.bucket()).isEqualTo(bucketName);
+            assertThat(capturedRequest.key()).isEqualTo(key);
+        }
+    }
 
 }
