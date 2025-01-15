@@ -29,7 +29,8 @@ public class Appointment extends BaseTimeEntity {
     @JoinColumn(name = "host_id")
     private Member host;
 
-    @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "appointment_id")
     private List<AppointmentDateTime> appointmentDateTimes;
 
     @Embedded
@@ -49,9 +50,9 @@ public class Appointment extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private AppointmentStatus appointmentStatus;
 
-    private Appointment(final Group group, final Member host, final List<AppointmentDateTime> appointmentDateTimes, final String name, final Integer duration, final String category, final AppointmentStatus appointmentStatus) {
-        this.group = group;
+    private Appointment(final Member host, final Group group, final List<AppointmentDateTime> appointmentDateTimes, final String name, final Integer duration, final String category, final AppointmentStatus appointmentStatus) {
         this.host = host;
+        this.group = group;
         this.appointmentDateTimes = appointmentDateTimes;
         this.name = AppointmentName.from(name);
         this.duration = AppointmentDuration.from(duration);
@@ -60,7 +61,7 @@ public class Appointment extends BaseTimeEntity {
         this.appointmentStatus = appointmentStatus;
     }
 
-    public static Appointment of(final Group group, final Member host, final List<AppointmentDateTime> appointmentDateTimes, final String name, final Integer duration, final String category, final AppointmentStatus appointmentStatus) {
-        return new Appointment(group, host, appointmentDateTimes, name, duration, category, appointmentStatus);
+    public static Appointment of(final Member host, final Group group, final List<AppointmentDateTime> appointmentDateTimes, final String name, final Integer duration, final String category, final AppointmentStatus appointmentStatus) {
+        return new Appointment(host, group, appointmentDateTimes, name, duration, category, appointmentStatus);
     }
 }
