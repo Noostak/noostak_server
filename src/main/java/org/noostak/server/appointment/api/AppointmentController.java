@@ -20,10 +20,10 @@ public class AppointmentController {
     @PostMapping("/{groupId}/appointments")
     public ResponseEntity<SuccessResponse<AppointmentCreateResponse>> createAppointment(
 //            @AuthenticationPrincipal Long userId,
-            @PathVariable Long groupId,
+            @PathVariable(name = "groupId") Long groupId,
             @RequestBody AppointmentCreateRequest request
     ) {
-        Long userId = 1L;
+        Long userId = 125L;
         AppointmentCreateResponse appointmentCreateResponse = appointmentService.createAppointment(userId, groupId, request);
         return ResponseEntity.ok(SuccessResponse.of(SUCCESS_CREATE_APPOINTMENT, appointmentCreateResponse));
     }
