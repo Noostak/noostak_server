@@ -31,17 +31,12 @@ public class AppointmentCreateService implements AppointmentService {
 
     @Transactional
     public AppointmentCreateResponse createAppointment(Long userId, Long groupId, AppointmentCreateRequest request) {
-        Group group = findGroupById(groupId);
         Member host = findHostById(userId);
-        List<AppointmentDateTime> appointmentDateTimes = createAppointmentDateTimes(request);
-        Appointment appointment = createAppointmentEntity(group, host, appointmentDateTimes, request);
+        Group group = findGroupById(groupId);
+        List<AppointmentDateTime> appointmentDateTimes = request.appointmentDateTimes();
+        Appointment appointment = createAppointmentEntity(host, group, appointmentDateTimes, request);
         saveAppointment(appointment);
         return buildAppointmentCreateResponse(appointment, appointmentDateTimes);
-    }
-
-    private Group findGroupById(Long groupId) {
-        return groupRepository.findById(groupId)
-                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.GROUP_NOT_FOUND));
     }
 
     private Member findHostById(Long userId) {
@@ -49,20 +44,15 @@ public class AppointmentCreateService implements AppointmentService {
                 .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.MEMBER_NOT_FOUND));
     }
 
-    private List<AppointmentDateTime> createAppointmentDateTimes(AppointmentCreateRequest request) {
-        return request.appointmentDateTimes().stream()
-                .map(dateTime -> AppointmentDateTime.of(
-                        dateTime.getDate(),
-                        dateTime.getStartTime(),
-                        dateTime.getEndTime()
-                ))
-                .collect(Collectors.toList());
+    private Group findGroupById(Long groupId) {
+        return groupRepository.findById(groupId)
+                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.GROUP_NOT_FOUND));
     }
 
-    private Appointment createAppointmentEntity(Group group, Member host, List<AppointmentDateTime> appointmentDateTimes, AppointmentCreateRequest request) {
+    private Appointment createAppointmentEntity(Member host, Group group, List<AppointmentDateTime> appointmentDateTimes, AppointmentCreateRequest request) {
         return Appointment.of(
-                group,
                 host,
+                group,
                 appointmentDateTimes,
                 request.appointmentName(),
                 request.duration(),
