@@ -16,10 +16,6 @@ public class AppointmentDateTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id")
-    private Appointment appointment;
-
     @Column(name = "appointment_date")
     private LocalDateTime date;
 
