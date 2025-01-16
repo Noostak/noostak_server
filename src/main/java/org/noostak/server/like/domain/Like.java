@@ -12,7 +12,6 @@ import org.noostak.server.appointment.domain.Option;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "likes")
 public class Like extends BaseTimeEntity {
 
     @Id

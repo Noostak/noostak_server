@@ -16,7 +16,6 @@ import java.util.Set;
 @Entity
 @Getter
 @RequiredArgsConstructor
-@Table(name = "groups")
 public class Group extends BaseTimeEntity {
 
     @Id
@@ -44,20 +43,6 @@ public class Group extends BaseTimeEntity {
     @Embedded
     @AttributeOverride(name = "count", column = @Column(name = "member_count"))
     private GroupMemberCount memberCount;
-
-    private Long groupLeaderId;
-
-    private Group(final Long groupLeaderId, final GroupName name, final GroupImageUrl url, final String inviteCode) {
-        this.groupLeaderId = groupLeaderId;
-        this.name = name;
-        this.url = url;
-        this.memberCount = GroupMemberCount.from(1L);
-        this.groupInviteCode = GroupInviteCode.from(inviteCode);
-    }
-
-    public static Group of(final Long groupLeaderId, final GroupName name, final GroupImageUrl url, final String inviteCode) {
-        return new Group(groupLeaderId, name, url, inviteCode);
-    }
 
     public void addMember() {
         this.memberCount = memberCount.increase();

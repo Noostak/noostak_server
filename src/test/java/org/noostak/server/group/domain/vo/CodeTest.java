@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.noostak.server.group.common.GroupErrorCode;
-import org.noostak.server.group.common.GroupException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -50,8 +48,8 @@ class CodeTest {
 
             // When & Then
             assertThatThrownBy(() -> Code.from(code))
-                    .isInstanceOf(GroupException.class)
-                    .hasMessageContaining(GroupErrorCode.INVITE_CODE_NOT_EMPTY.getMessage());
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("[ERROR] 초대 코드는 비어 있을 수 없습니다.");
         }
 
         @ParameterizedTest
@@ -68,8 +66,8 @@ class CodeTest {
 
             // When & Then
             assertThatThrownBy(() -> Code.from(code))
-                    .isInstanceOf(GroupException.class)
-                    .hasMessageContaining(GroupErrorCode.INVALID_INVITE_CODE_LENGTH.getMessage());
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("[ERROR] 초대 코드는 정확히 6자리여야 합니다.");
         }
 
         @ParameterizedTest
@@ -86,8 +84,8 @@ class CodeTest {
 
             // When & Then
             assertThatThrownBy(() -> Code.from(code))
-                    .isInstanceOf(GroupException.class)
-                    .hasMessageContaining(GroupErrorCode.INVALID_INVITE_CODE_ALPHA_NUMERIC_ONLY.getMessage());
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("[ERROR] 초대 코드는 숫자와 알파벳으로만 구성되어야 합니다.");
         }
     }
 }
