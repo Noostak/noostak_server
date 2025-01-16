@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.noostak.server.global.config.AwsConfig;
+import org.noostak.server.global.config.AwsProperties;
 import org.noostak.server.infra.error.S3UploadErrorCode;
 import org.noostak.server.infra.error.S3UploadException;
 import org.springframework.mock.web.MockMultipartFile;
@@ -23,10 +24,10 @@ import static org.mockito.Mockito.*;
 class S3ServiceTest {
 
     private final AwsConfig awsConfig = mock(AwsConfig.class);
+    private final AwsProperties awsProperties = mock(AwsProperties.class);
     private final S3Client s3Client = mock(S3Client.class);
-    private final String bucketName = "test-bucket";
-    private final Long maxFileSize = 2L * 1024 * 1024;
-    private final S3Service s3Service = new S3Service(bucketName, maxFileSize, awsConfig);
+
+    private final S3Service s3Service = new S3Service(awsProperties, awsConfig);
 
     @Nested
     @DisplayName("이미지 업로드 테스트")
@@ -43,7 +44,9 @@ class S3ServiceTest {
                     "image/jpeg",
                     new byte[]{1, 2, 3, 4}
             );
+
             when(awsConfig.getS3Client()).thenReturn(s3Client);
+            when(awsProperties.getS3BucketName()).thenReturn("test-bucket");
 
             // When
             String result = s3Service.uploadImage(directoryPath, image);
@@ -83,6 +86,8 @@ class S3ServiceTest {
                     new byte[3 * 1024 * 1024]
             );
 
+            when(awsProperties.getMaxFileSize()).thenReturn(2L * 1024 * 1024);
+
             // When & Then
             assertThatThrownBy(() -> s3Service.uploadImage(directoryPath, image))
                     .isInstanceOf(S3UploadException.class)
@@ -99,7 +104,9 @@ class S3ServiceTest {
         void deleteImage_success() throws IOException {
             // Given
             String key = "images/test.jpg";
+
             when(awsConfig.getS3Client()).thenReturn(s3Client);
+            when(awsProperties.getS3BucketName()).thenReturn("test-bucket");
 
             // When
             s3Service.deleteImage(key);
@@ -109,7 +116,7 @@ class S3ServiceTest {
             verify(s3Client).deleteObject(captor.capture());
 
             DeleteObjectRequest capturedRequest = captor.getValue();
-            assertThat(capturedRequest.bucket()).isEqualTo(bucketName);
+            assertThat(capturedRequest.bucket()).isEqualTo("test-bucket");
             assertThat(capturedRequest.key()).isEqualTo(key);
         }
     }
