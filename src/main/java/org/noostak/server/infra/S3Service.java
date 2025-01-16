@@ -19,12 +19,20 @@ import java.util.UUID;
 @Component
 public class S3Service {
 
-    private final String bucketName;
-    private final AwsConfig awsConfig;
     private static final List<String> IMAGE_EXTENSIONS = Arrays.asList("image/jpeg", "image/png", "image/jpg", "image/webp");
 
-    public S3Service(@Value("${aws-property.s3-bucket-name}") final String bucketName, AwsConfig awsConfig) {
+    private final Long maxFileSize;
+
+    private final String bucketName;
+    private final AwsConfig awsConfig;
+
+    public S3Service(
+            @Value("${aws-property.s3-bucket-name}") final String bucketName,
+            @Value("${aws-property.max-file-size}") final Long maxFileSize,
+            AwsConfig awsConfig
+    ) {
         this.bucketName = bucketName;
+        this.maxFileSize = maxFileSize;
         this.awsConfig = awsConfig;
     }
 
@@ -69,13 +77,9 @@ public class S3Service {
         }
     }
 
-    private static final Long MAX_FILE_SIZE = 2 * 1024 * 1024L;
-
     private void validateFileSize(MultipartFile image) {
-        if (image.getSize() > MAX_FILE_SIZE) {
+        if (image.getSize() > maxFileSize) {
             throw new S3UploadException(S3UploadErrorCode.FILE_SIZE_EXCEEDED);
         }
     }
-
 }
-

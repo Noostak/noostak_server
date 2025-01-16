@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.noostak.server.global.config.AwsConfig;
-
 import org.noostak.server.infra.error.S3UploadErrorCode;
 import org.noostak.server.infra.error.S3UploadException;
 import org.springframework.mock.web.MockMultipartFile;
@@ -26,7 +25,8 @@ class S3ServiceTest {
     private final AwsConfig awsConfig = mock(AwsConfig.class);
     private final S3Client s3Client = mock(S3Client.class);
     private final String bucketName = "test-bucket";
-    private final S3Service s3Service = new S3Service(bucketName, awsConfig);
+    private final Long maxFileSize = 2L * 1024 * 1024;
+    private final S3Service s3Service = new S3Service(bucketName, maxFileSize, awsConfig);
 
     @Nested
     @DisplayName("이미지 업로드 테스트")
@@ -35,7 +35,6 @@ class S3ServiceTest {
         @Test
         @DisplayName("이미지 업로드 - 성공")
         void uploadImage_success() throws IOException {
-
             // Given
             String directoryPath = "images/";
             MultipartFile image = new MockMultipartFile(
@@ -53,42 +52,42 @@ class S3ServiceTest {
             assertThat(result).startsWith(directoryPath).endsWith(".jpg");
             verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
         }
-    }
 
-    @Test
-    @DisplayName("이미지 업로드 - 잘못된 확장자")
-    void uploadImage_invalidExtension() {
-        // Given
-        String directoryPath = "images/";
-        MultipartFile image = new MockMultipartFile(
-                "image",
-                "test.txt",
-                "text/plain",
-                new byte[]{1, 2, 3, 4}
-        );
+        @Test
+        @DisplayName("이미지 업로드 - 잘못된 확장자")
+        void uploadImage_invalidExtension() {
+            // Given
+            String directoryPath = "images/";
+            MultipartFile image = new MockMultipartFile(
+                    "image",
+                    "test.txt",
+                    "text/plain",
+                    new byte[]{1, 2, 3, 4}
+            );
 
-        // When & Then
-        assertThatThrownBy(() -> s3Service.uploadImage(directoryPath, image))
-                .isInstanceOf(S3UploadException.class)
-                .hasMessageContaining(S3UploadErrorCode.INVALID_EXTENSION.getMessage());
-    }
+            // When & Then
+            assertThatThrownBy(() -> s3Service.uploadImage(directoryPath, image))
+                    .isInstanceOf(S3UploadException.class)
+                    .hasMessageContaining(S3UploadErrorCode.INVALID_EXTENSION.getMessage());
+        }
 
-    @Test
-    @DisplayName("이미지 업로드 - 파일 크기 초과")
-    void uploadImage_fileSizeExceedsLimit() {
-        // Given
-        String directoryPath = "images/";
-        MultipartFile image = new MockMultipartFile(
-                "image",
-                "large.jpg",
-                "image/jpeg",
-                new byte[6 * 1024 * 1024]
-        );
+        @Test
+        @DisplayName("이미지 업로드 - 파일 크기 초과")
+        void uploadImage_fileSizeExceedsLimit() {
+            // Given
+            String directoryPath = "images/";
+            MultipartFile image = new MockMultipartFile(
+                    "image",
+                    "large.jpg",
+                    "image/jpeg",
+                    new byte[3 * 1024 * 1024]
+            );
 
-        // When & Then
-        assertThatThrownBy(() -> s3Service.uploadImage(directoryPath, image))
-                .isInstanceOf(S3UploadException.class)
-                .hasMessageContaining(S3UploadErrorCode.FILE_SIZE_EXCEEDED.getMessage());
+            // When & Then
+            assertThatThrownBy(() -> s3Service.uploadImage(directoryPath, image))
+                    .isInstanceOf(S3UploadException.class)
+                    .hasMessageContaining(S3UploadErrorCode.FILE_SIZE_EXCEEDED.getMessage());
+        }
     }
 
     @Nested
@@ -114,5 +113,4 @@ class S3ServiceTest {
             assertThat(capturedRequest.key()).isEqualTo(key);
         }
     }
-
 }
