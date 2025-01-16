@@ -11,8 +11,15 @@ public enum S3UploadErrorCode implements ErrorCode {
     INVALID_EXTENSION(HttpStatus.BAD_REQUEST, "이미지 확장자는 jpg, png, webp만 가능합니다."),
     FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "이미지 사이즈는 5MB를 넘을 수 없습니다.");
 
+    public static final String PREFIX = "[S3 UPLOAD ERROR] ";
+
     private final HttpStatus status;
-    private final String message;
+    private final String rawMessage;
+
+    @Override
+    public String getMessage() {
+        return PREFIX + rawMessage;
+    }
 
     @Override
     public int getStatusValue() {
