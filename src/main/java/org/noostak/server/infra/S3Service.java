@@ -1,7 +1,6 @@
 package org.noostak.server.infra;
 
 import org.noostak.server.global.config.AwsConfig;
-import org.noostak.server.global.config.AwsProperties;
 import org.noostak.server.infra.error.S3UploadErrorCode;
 import org.noostak.server.infra.error.S3UploadException;
 import org.springframework.stereotype.Component;
@@ -21,11 +20,9 @@ public class S3Service {
 
     private static final List<String> IMAGE_EXTENSIONS = Arrays.asList("image/jpeg", "image/png", "image/jpg", "image/webp");
 
-    private final AwsProperties awsProperties;
     private final AwsConfig awsConfig;
 
-    public S3Service(AwsProperties awsProperties, AwsConfig awsConfig) {
-        this.awsProperties = awsProperties;
+    public S3Service(AwsConfig awsConfig) {
         this.awsConfig = awsConfig;
     }
 
@@ -37,7 +34,7 @@ public class S3Service {
         validateFileSize(image);
 
         PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(awsProperties.getS3BucketName())
+                .bucket(awsConfig.getS3BucketName())
                 .key(key)
                 .contentType(image.getContentType())
                 .contentDisposition("inline")
@@ -52,7 +49,7 @@ public class S3Service {
         final S3Client s3Client = awsConfig.getS3Client();
 
         DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-                .bucket(awsProperties.getS3BucketName())
+                .bucket(awsConfig.getS3BucketName())
                 .key(key)
                 .build();
 
@@ -71,7 +68,7 @@ public class S3Service {
     }
 
     private void validateFileSize(MultipartFile image) {
-        if (image.getSize() > awsProperties.getMaxFileSize()) {
+        if (image.getSize() > awsConfig.getMaxFileSize()) {
             throw new S3UploadException(S3UploadErrorCode.FILE_SIZE_EXCEEDED);
         }
     }

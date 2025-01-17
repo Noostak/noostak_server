@@ -1,4 +1,4 @@
-package org.noostak.server.auth.application;
+package org.noostak.server.auth.application.jwt;
 
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
