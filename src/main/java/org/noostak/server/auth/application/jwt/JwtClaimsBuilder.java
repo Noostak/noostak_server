@@ -1,4 +1,4 @@
-package org.noostak.server.auth.application;
+package org.noostak.server.auth.application.jwt;
 
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.Authentication;
