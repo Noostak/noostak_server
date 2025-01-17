@@ -3,6 +3,9 @@ package org.noostak.server.group.domain.vo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.noostak.server.group.common.GroupErrorCode;
+import org.noostak.server.group.common.GroupException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -64,8 +67,8 @@ class GroupMemberCountTest {
 
             // When & Then
             assertThatThrownBy(count::decrease)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("[ERROR] 그룹 멤버 수는 음수가 될 수 없습니다.");
+                    .isInstanceOf(GroupException.class)
+                    .hasMessageContaining(GroupErrorCode.MEMBER_COUNT_NEGATIVE.getMessage());
         }
 
         @Test
@@ -76,8 +79,8 @@ class GroupMemberCountTest {
 
             // When & Then
             assertThatThrownBy(count::increase)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("[ERROR] 그룹 멤버 수는 최대 50명을 초과할 수 없습니다.");
+                    .isInstanceOf(GroupException.class)
+                    .hasMessageContaining(GroupErrorCode.MEMBER_COUNT_EXCEEDS_MAX_LIMIT.getMessage());
         }
 
         @Test
@@ -88,8 +91,8 @@ class GroupMemberCountTest {
 
             // When & Then
             assertThatThrownBy(() -> GroupMemberCount.from(initialCount))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("[ERROR] 그룹 멤버 수는 음수가 될 수 없습니다.");
+                    .isInstanceOf(GroupException.class)
+                    .hasMessageContaining(GroupErrorCode.MEMBER_COUNT_INITIAL_NEGATIVE.getMessage());
         }
     }
 }
