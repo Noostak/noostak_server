@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.noostak.server.global.config.AwsConfig;
-import org.noostak.server.global.config.AwsProperties;
 import org.noostak.server.infra.error.S3UploadErrorCode;
 import org.noostak.server.infra.error.S3UploadException;
 import org.springframework.mock.web.MockMultipartFile;
@@ -22,17 +21,10 @@ import static org.mockito.Mockito.*;
 
 class S3ServiceTest {
 
-    private final AwsProperties awsProperties = new AwsProperties(
-            "test-bucket",
-            "access-key",
-            "secret-key",
-            "ap-northeast-2",
-            2L * 1024 * 1024
-    );
     private final AwsConfig awsConfig = mock(AwsConfig.class);
     private final S3Client s3Client = mock(S3Client.class);
 
-    private final S3Service s3Service = new S3Service(awsProperties, awsConfig);
+    private final S3Service s3Service = new S3Service(awsConfig);
 
     @Nested
     @DisplayName("이미지 업로드 테스트")
@@ -49,7 +41,10 @@ class S3ServiceTest {
                     "image/jpeg",
                     new byte[]{1, 2, 3, 4}
             );
+
             when(awsConfig.getS3Client()).thenReturn(s3Client);
+            when(awsConfig.getS3BucketName()).thenReturn("test-bucket");
+            when(awsConfig.getMaxFileSize()).thenReturn(1024L * 1024 * 2);
 
             // When
             String result = s3Service.uploadImage(directoryPath, image);
@@ -57,8 +52,8 @@ class S3ServiceTest {
             // Then
             assertThat(result).startsWith(directoryPath).endsWith(".jpg");
             verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
-
         }
+
 
         @Test
         @DisplayName("이미지 업로드 - 잘못된 확장자")
@@ -89,6 +84,7 @@ class S3ServiceTest {
                     "image/jpeg",
                     new byte[3 * 1024 * 1024]
             );
+            when(awsConfig.getMaxFileSize()).thenReturn(2L * 1024 * 1024);
 
             // When & Then
             assertThatThrownBy(() -> s3Service.uploadImage(directoryPath, image))
@@ -107,6 +103,7 @@ class S3ServiceTest {
             // Given
             String key = "images/test.jpg";
             when(awsConfig.getS3Client()).thenReturn(s3Client);
+            when(awsConfig.getS3BucketName()).thenReturn("test-bucket");
 
             // When
             s3Service.deleteImage(key);
