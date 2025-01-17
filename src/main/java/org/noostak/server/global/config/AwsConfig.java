@@ -25,7 +25,7 @@ public class AwsConfig {
     private String awsRegion;
 
     @Value("${aws-property.max-file-size}")
-    private String maxfileSize;
+    private String maxFileSize;
 
     @Bean
     public Region getRegion() {
@@ -39,5 +39,14 @@ public class AwsConfig {
                 .region(getRegion())
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
+    }
+
+    @Bean
+    public Long getMaxFileSize() {
+        try {
+            return Long.parseLong(maxFileSize);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid max file size format: " + maxFileSize, e);
+        }
     }
 }
