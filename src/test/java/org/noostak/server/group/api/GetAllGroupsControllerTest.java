@@ -3,19 +3,14 @@ package org.noostak.server.group.api;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.noostak.server.group.domain.Group;
 import org.noostak.server.group.domain.GroupRepository;
-import org.noostak.server.group.domain.GroupRepositoryTest;
 import org.noostak.server.group.domain.vo.GroupImageUrl;
 import org.noostak.server.group.domain.vo.GroupName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
