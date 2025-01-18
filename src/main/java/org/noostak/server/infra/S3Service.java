@@ -41,7 +41,7 @@ public class S3Service implements FileStorageService {
 
         s3Client.putObject(request, RequestBody.fromBytes(image.getBytes()));
 
-        return generateFileUrl(key); // S3 URL 반환
+        return generateFileUrl(key);
     }
 
     @Override
@@ -57,12 +57,12 @@ public class S3Service implements FileStorageService {
     }
 
     public ProfileImageUrl uploadProfileImage(MultipartFile file) throws IOException {
-        String url = uploadImage("/profile/", file); // /profile 디렉토리에 저장
+        String url = uploadImage("/profile/", file);
         return ProfileImageUrl.from(url);
     }
 
     public GroupImageUrl uploadGroupImage(MultipartFile file) throws IOException {
-        String url = uploadImage("/group/", file); // /group 디렉토리에 저장
+        String url = uploadImage("/group/", file);
         return GroupImageUrl.from(url);
     }
 
