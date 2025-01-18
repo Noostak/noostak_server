@@ -1,5 +1,6 @@
 package org.noostak.server.infra;
 
+import lombok.RequiredArgsConstructor;
 import org.noostak.server.global.config.AwsConfig;
 import org.noostak.server.infra.error.S3UploadErrorCode;
 import org.noostak.server.infra.error.S3UploadException;
@@ -16,16 +17,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-public class S3Service {
+@RequiredArgsConstructor
+public class S3Service implements FileStorageService {
 
     private static final List<String> IMAGE_EXTENSIONS = Arrays.asList("image/jpeg", "image/png", "image/jpg", "image/webp");
 
     private final AwsConfig awsConfig;
 
-    public S3Service(AwsConfig awsConfig) {
-        this.awsConfig = awsConfig;
-    }
-
+    @Override
     public String uploadImage(String directoryPath, MultipartFile image) throws IOException {
         final String key = directoryPath + generateImageFileName();
         final S3Client s3Client = awsConfig.getS3Client();
@@ -45,6 +44,7 @@ public class S3Service {
         return key;
     }
 
+    @Override
     public void deleteImage(String key) throws IOException {
         final S3Client s3Client = awsConfig.getS3Client();
 
