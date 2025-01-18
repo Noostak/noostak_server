@@ -9,6 +9,7 @@ public class CustomAuthentication extends AbstractAuthenticationToken {
     public CustomAuthentication(String userId, Object credentials, Object details) {
         super(null);
         this.userId = userId;
+        setAuthenticated(true);
     }
 
     @Override
