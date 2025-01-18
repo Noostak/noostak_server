@@ -3,14 +3,19 @@ package org.noostak.server.group.api;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.noostak.server.group.domain.Group;
 import org.noostak.server.group.domain.GroupRepository;
+import org.noostak.server.group.domain.GroupRepositoryTest;
 import org.noostak.server.group.domain.vo.GroupImageUrl;
 import org.noostak.server.group.domain.vo.GroupName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,22 +33,21 @@ class GetAllGroupsControllerTest {
 
     @BeforeEach
     void setUp() {
-        Long firstLeaderId = 1L;
-        Long secondLeaderId = 2L;
 
-        groupRepository.deleteAll();
         groupRepository.save(Group.of(
-                firstLeaderId,
+                1L,
                 GroupName.from("Group 1"),
                 GroupImageUrl.from("https://example.com/group1.png"),
                 "123ABC"
         ));
+
         groupRepository.save(Group.of(
-                secondLeaderId,
+                2L,
                 GroupName.from("Group 2"),
                 GroupImageUrl.from("https://example.com/group2.png"),
                 "ABC456"
         ));
+
     }
 
     @Test
@@ -57,4 +61,5 @@ class GetAllGroupsControllerTest {
                 .andExpect(jsonPath("$.result.groups[0].groupName").value("Group 1"))
                 .andExpect(jsonPath("$.result.groups[1].groupName").value("Group 2"));
     }
+
 }
