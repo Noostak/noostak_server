@@ -9,6 +9,8 @@ import org.noostak.server.group.dto.response.GroupsResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 import static org.noostak.server.group.common.GroupSuccessCode.SUCCESS_CREATE_GROUP;
 import static org.noostak.server.group.common.GroupSuccessCode.SUCCESS_GET_GROUP_LIST;
 
@@ -29,7 +31,7 @@ public class GroupController {
     public ResponseEntity<SuccessResponse<GroupCreateResponse>> createGroup(
             // @AuthenticationPrincipal Long userId,
             @ModelAttribute GroupCreateRequest request
-    ) {
+    ) throws IOException {
 
         // TODO: AuthenticationPrincipal
         Long userId = 1L;

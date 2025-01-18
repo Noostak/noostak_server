@@ -28,22 +28,21 @@ class GetAllGroupsControllerTest {
 
     @BeforeEach
     void setUp() {
-        Long firstLeaderId = 1L;
-        Long secondLeaderId = 2L;
 
-        groupRepository.deleteAll();
         groupRepository.save(Group.of(
-                firstLeaderId,
+                1L,
                 GroupName.from("Group 1"),
                 GroupImageUrl.from("https://example.com/group1.png"),
                 "123ABC"
         ));
+
         groupRepository.save(Group.of(
-                secondLeaderId,
+                2L,
                 GroupName.from("Group 2"),
                 GroupImageUrl.from("https://example.com/group2.png"),
                 "ABC456"
         ));
+
     }
 
     @Test
@@ -57,4 +56,5 @@ class GetAllGroupsControllerTest {
                 .andExpect(jsonPath("$.result.groups[0].groupName").value("Group 1"))
                 .andExpect(jsonPath("$.result.groups[1].groupName").value("Group 2"));
     }
+
 }

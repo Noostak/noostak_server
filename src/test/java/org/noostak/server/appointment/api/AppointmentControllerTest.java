@@ -5,13 +5,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.noostak.server.appointment.common.AppointmentSuccessCode;
 import org.noostak.server.appointment.domain.AppointmentDateTime;
+import org.noostak.server.appointment.domain.AppointmentRepository;
 import org.noostak.server.appointment.domain.AppointmentRepositoryTest;
 import org.noostak.server.appointment.dto.request.AppointmentCreateRequest;
 import org.noostak.server.group.domain.Group;
+import org.noostak.server.group.domain.GroupRepository;
 import org.noostak.server.group.domain.GroupRepositoryTest;
 import org.noostak.server.group.domain.vo.GroupImageUrl;
 import org.noostak.server.group.domain.vo.GroupName;
 import org.noostak.server.member.domain.Member;
+import org.noostak.server.member.domain.MemberRepository;
 import org.noostak.server.member.domain.MemberRepositoryTest;
 import org.noostak.server.member.domain.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +42,13 @@ class AppointmentControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private MemberRepositoryTest memberRepository;
+    private MemberRepository memberRepository;
 
     @Autowired
-    private GroupRepositoryTest groupRepository;
+    private GroupRepository groupRepository;
 
     @Autowired
-    private AppointmentRepositoryTest appointmentRepository;
+    private AppointmentRepository appointmentRepository;
 
     private Long savedGroupId;
 

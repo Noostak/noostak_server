@@ -1,10 +1,12 @@
 package org.noostak.server.group.dto.request;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public record GroupCreateRequest(
         String groupName,
-        String groupImageUrl
+        MultipartFile file
 ) {
-    public static GroupCreateRequest of(String groupName, String groupImageUrl) {
-        return new GroupCreateRequest(groupName, groupImageUrl);
+    public static GroupCreateRequest of(String groupName, MultipartFile file) {
+        return new GroupCreateRequest(groupName, file);
     }
 }
