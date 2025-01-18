@@ -28,9 +28,9 @@ public class AppointmentRepositoryTest implements AppointmentRepository {
 
     private void setId(Appointment appointment) {
         try {
-            var appointmentIdField = Appointment.class.getDeclaredField("id"); // 'id' 필드 접근
+            var appointmentIdField = Appointment.class.getDeclaredField("id");
             appointmentIdField.setAccessible(true);
-            appointmentIdField.set(appointment, idGenerator.getAndIncrement()); // ID 설정
+            appointmentIdField.set(appointment, idGenerator.getAndIncrement());
         } catch (NoSuchFieldException e) {
             throw new RuntimeException("[ERROR] 'id' 필드를 Appointment 클래스에서 찾을 수 없습니다. 필드 이름이 정확한지 확인하세요.", e);
         } catch (IllegalAccessException e) {
@@ -47,7 +47,7 @@ public class AppointmentRepositoryTest implements AppointmentRepository {
 
     @Override
     public List<Appointment> findAll() {
-        return new ArrayList<>(appointments); // 복사본 반환
+        return new ArrayList<>(appointments);
     }
 
     @Override
