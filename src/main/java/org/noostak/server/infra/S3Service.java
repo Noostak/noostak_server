@@ -3,8 +3,8 @@ package org.noostak.server.infra;
 import lombok.RequiredArgsConstructor;
 import org.noostak.server.global.config.AwsConfig;
 import org.noostak.server.group.domain.vo.GroupImageUrl;
-import org.noostak.server.infra.error.S3UploadErrorCode;
-import org.noostak.server.infra.error.S3UploadException;
+import org.noostak.server.infra.error.S3ErrorCode;
+import org.noostak.server.infra.error.S3Exception;
 import org.noostak.server.member.domain.vo.ProfileImageUrl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,14 +46,18 @@ public class S3Service implements FileStorageService {
 
     @Override
     public void deleteImage(String key) throws IOException {
-        S3Client s3Client = awsConfig.getS3Client();
+        try {
+            S3Client s3Client = awsConfig.getS3Client();
 
-        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-                .bucket(awsConfig.getS3BucketName())
-                .key(key)
-                .build();
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(awsConfig.getS3BucketName())
+                    .key(key)
+                    .build();
 
-        s3Client.deleteObject(deleteRequest);
+            s3Client.deleteObject(deleteRequest);
+        } catch (Exception e) {
+            throw new S3Exception(S3ErrorCode.OBJECT_NOT_FOUND);
+        }
     }
 
     public ProfileImageUrl uploadProfileImage(MultipartFile file) throws IOException {
@@ -80,11 +84,11 @@ public class S3Service implements FileStorageService {
 
     private void validateFile(MultipartFile file) {
         if (!IMAGE_EXTENSIONS.contains(file.getContentType())) {
-            throw new S3UploadException(S3UploadErrorCode.INVALID_EXTENSION);
+            throw new S3Exception(S3ErrorCode.INVALID_EXTENSION);
         }
 
         if (file.getSize() > awsConfig.getMaxFileSize()) {
-            throw new S3UploadException(S3UploadErrorCode.FILE_SIZE_EXCEEDED);
+            throw new S3Exception(S3ErrorCode.FILE_SIZE_EXCEEDED);
         }
     }
 }
