@@ -10,6 +10,7 @@ public class CustomAuthentication extends AbstractAuthenticationToken {
         super(null);
         this.userId = userId;
         setAuthenticated(true);
+        setDetails(details);
     }
 
     @Override
