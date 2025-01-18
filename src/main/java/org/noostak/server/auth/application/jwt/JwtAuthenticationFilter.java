@@ -28,6 +28,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = getJwtFromRequest(request);
             if (token != null) {
                 jwtTokenProvider.validateToken(token);
+                String memberId = jwtTokenProvider.getMemberIdFromToken(token);
+                CustomAuthentication authentication = new CustomAuthentication(memberId, null, null);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
             log.error("JWT 처리 중 오류 발생: {}", e.getMessage());
