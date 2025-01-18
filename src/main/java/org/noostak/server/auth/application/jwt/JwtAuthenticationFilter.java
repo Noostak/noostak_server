@@ -24,6 +24,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        try {
+            String token = getJwtFromRequest(request);
+            if (token != null) {
+                jwtTokenProvider.validateToken(token);
+            }
+        } catch (Exception e) {
+            log.error("JWT 처리 중 오류 발생: {}", e.getMessage());
+        }
         filterChain.doFilter(request, response);
+    }
+
+    private String getJwtFromRequest(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        }
+        return null;
     }
 }
