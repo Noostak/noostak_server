@@ -48,9 +48,23 @@ class AppointmentCreateServiceTest {
     private Long savedGroupId;
     private Long savedMemberId;
 
+    private static final String DEFAULT_MEMBER_NAME = "firstMember";
+    private static final String DEFAULT_IMAGE_URL = "https://noostak.s3.ap-northeast-2.amazonaws.com/group-images/1.jpg";
+    private static final String DEFAULT_SOCIAL_ID = "123456";
+    private static final String DEFAULT_REFRESH_TOKEN = "refreshToken1";
+    private static final String DEFAULT_GROUP_NAME = "Group 1";
+    private static final String DEFAULT_FILE_NAME = "group-thumbnail.png";
+    private static final String DEFAULT_FILE_CONTENT = "thumbnail content";
+    private static final String DEFAULT_FILE_PATH = "group-images";
+    private static final String DEFAULT_GROUP_CODE = "ABC123";
+    private static final String TEST_APPOINTMENT_NAME = "Study Group";
+    private static final String TEST_CATEGORY = "중요";
+    private static final int TEST_DURATION = 120;
+    private static final int DATE_TIME_SIZE = 2;
+    private static final String DEFAULT_FILE_PARAM_NAME = "file";
+
     @BeforeEach
     void setUp() {
-
         appointmentRepository = new AppointmentRepositoryTest();
         groupRepository = new GroupRepositoryTest();
         memberRepository = new MemberRepositoryTest();
@@ -60,21 +74,25 @@ class AppointmentCreateServiceTest {
         groupRepository.deleteAll();
         memberRepository.deleteAll();
 
-        Member savedMember = saveMember("firstMember",
-                "https://noostak.s3.ap-northeast-2.amazonaws.com/group-images/1.jpg",
-                "123456",
-                "refreshToken1");
-
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "group-thumbnail.png",
-                MediaType.IMAGE_PNG_VALUE,
-                "thumbnail content".getBytes()
-        );
+        Member savedMember = createDefaultMember();
         savedMemberId = savedMember.getMemberId();
-        Group savedGroup = saveGroup(savedMemberId, "Group 1", file);
-        savedGroupId = savedGroup.getGroupId();
 
+        MockMultipartFile file = createDefaultMultipartFile();
+        Group savedGroup = saveGroup(savedMemberId, DEFAULT_GROUP_NAME, file);
+        savedGroupId = savedGroup.getGroupId();
+    }
+
+    private Member createDefaultMember() {
+        return saveMember(DEFAULT_MEMBER_NAME, DEFAULT_IMAGE_URL, DEFAULT_SOCIAL_ID, DEFAULT_REFRESH_TOKEN);
+    }
+
+    private MockMultipartFile createDefaultMultipartFile() {
+        return new MockMultipartFile(
+                DEFAULT_FILE_PARAM_NAME,
+                DEFAULT_FILE_NAME,
+                MediaType.IMAGE_PNG_VALUE,
+                DEFAULT_FILE_CONTENT.getBytes()
+        );
     }
 
     @Nested
@@ -85,9 +103,6 @@ class AppointmentCreateServiceTest {
         @DisplayName("약속 생성 성공")
         void shouldCreateAppointment() {
             // Given
-            String appointmentName = "Study Group";
-            String category = "중요";
-            Integer duration = 120;
             List<AppointmentDateTime> dateTimeRequests = List.of(
                     AppointmentDateTime.of(
                             LocalDateTime.now(),
@@ -101,22 +116,21 @@ class AppointmentCreateServiceTest {
                     )
             );
 
-
-            AppointmentCreateRequest request = AppointmentCreateRequest.of(appointmentName, category, duration, dateTimeRequests);
+            AppointmentCreateRequest request = AppointmentCreateRequest.of(TEST_APPOINTMENT_NAME, TEST_CATEGORY, TEST_DURATION, dateTimeRequests);
 
             // When
             Member host = findHostById(savedMemberId);
-            Group group  = findGroupById(savedGroupId);
+            Group group = findGroupById(savedGroupId);
             List<AppointmentDateTime> appointmentDateTimes = request.appointmentDateTimes();
             Appointment appointment = createAppointmentEntity(host, group, appointmentDateTimes, request);
             saveAppointment(appointment);
             AppointmentCreateResponse appointmentCreateResponse = buildAppointmentCreateResponse(appointment, appointmentDateTimes);
 
             // Then
-            assertThat(appointmentCreateResponse.appointmentName()).isEqualTo(appointmentName);
-            assertThat(appointmentCreateResponse.category()).isEqualTo(category);
-            assertThat(appointmentCreateResponse.duration()).isEqualTo(duration);
-            assertThat(appointmentCreateResponse.appointmentDateTimes()).hasSize(2);
+            assertThat(appointmentCreateResponse.appointmentName()).isEqualTo(TEST_APPOINTMENT_NAME);
+            assertThat(appointmentCreateResponse.category()).isEqualTo(TEST_CATEGORY);
+            assertThat(appointmentCreateResponse.duration()).isEqualTo(TEST_DURATION);
+            assertThat(appointmentCreateResponse.appointmentDateTimes()).hasSize(DATE_TIME_SIZE);
         }
     }
 
@@ -129,9 +143,6 @@ class AppointmentCreateServiceTest {
     })
     void shouldFailToCreateAppointmentWhenGroupDoesNotExist(Long invalidGroupId) {
         // Given
-        String appointmentName = "Study Group";
-        String category = "중요";
-        int duration = 120;
         List<AppointmentDateTime> appointmentDateTimes = List.of(
                 AppointmentDateTime.of(
                         LocalDateTime.now(),
@@ -140,7 +151,7 @@ class AppointmentCreateServiceTest {
                 )
         );
         AppointmentCreateRequest request = AppointmentCreateRequest.of(
-                appointmentName, category, duration, appointmentDateTimes
+                TEST_APPOINTMENT_NAME, TEST_CATEGORY, TEST_DURATION, appointmentDateTimes
         );
 
         // When & Then
@@ -164,9 +175,6 @@ class AppointmentCreateServiceTest {
     })
     void shouldFailToCreateAppointmentWhenUserDoesNotExist(Long invalidUserId) {
         // Given
-        String appointmentName = "Study Group";
-        String category = "중요";
-        int duration = 120;
         List<AppointmentDateTime> appointmentDateTimes = List.of(
                 AppointmentDateTime.of(
                         LocalDateTime.now(),
@@ -175,7 +183,7 @@ class AppointmentCreateServiceTest {
                 )
         );
         AppointmentCreateRequest request = AppointmentCreateRequest.of(
-                appointmentName, category, duration, appointmentDateTimes
+                TEST_APPOINTMENT_NAME, TEST_CATEGORY, TEST_DURATION, appointmentDateTimes
         );
 
         // When & Then
@@ -189,8 +197,6 @@ class AppointmentCreateServiceTest {
                 .isInstanceOf(AppointmentException.class)
                 .hasMessage(AppointmentErrorCode.MEMBER_NOT_FOUND.getMessage());
     }
-
-
 
     private Member saveMember(String name, String imageUrl, String socialId, String refreshToken) {
         return memberRepository.save(
@@ -206,13 +212,13 @@ class AppointmentCreateServiceTest {
     }
 
     private Group saveGroup(Long hostId, String groupName, MockMultipartFile file) {
-        String uploadedImageUrl = fileStorageService.uploadImage("group-images", file);
+        String uploadedImageUrl = fileStorageService.uploadImage(DEFAULT_FILE_PATH, file);
         return groupRepository.save(
                 Group.of(
                         hostId,
                         GroupName.from(groupName),
                         GroupImageUrl.from(uploadedImageUrl),
-                        "ABC123"
+                        DEFAULT_GROUP_CODE
                 )
         );
     }
@@ -266,6 +272,4 @@ class AppointmentCreateServiceTest {
                 dateTimeResponses
         );
     }
-
-
 }
