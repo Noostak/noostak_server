@@ -26,12 +26,11 @@ class S3ServiceTest {
     private final S3Client s3Client = mock(S3Client.class);
 
     private final S3Service s3Service = new S3Service(awsConfig);
+    private final String bucketName = "test-bucket";
 
     @Nested
     @DisplayName("프로필 이미지 업로드 테스트")
     class UploadProfileImageTests {
-
-        private final String bucketName = "test-bucket";
         private final String profileDirectory = "profile/";
 
         @Test
@@ -81,8 +80,6 @@ class S3ServiceTest {
     @Nested
     @DisplayName("그룹 이미지 업로드 테스트")
     class UploadGroupImageTests {
-
-        private final String bucketName = "test-bucket";
         private final String groupDirectory = "group/";
 
         @Test
@@ -135,7 +132,7 @@ class S3ServiceTest {
 
     private void setupMockForUpload() {
         when(awsConfig.getS3Client()).thenReturn(s3Client);
-        when(awsConfig.getS3BucketName()).thenReturn("test-bucket");
+        when(awsConfig.getS3BucketName()).thenReturn(bucketName);
         when(awsConfig.getMaxFileSize()).thenReturn(1024L * 1024 * 2);
         when(awsConfig.getRegion()).thenReturn(software.amazon.awssdk.regions.Region.of("ap-northeast-2"));
     }
