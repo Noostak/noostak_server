@@ -21,4 +21,13 @@ public class MemberGroup {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Group group;
+
+    private MemberGroup(final Member member, final Group group) {
+        this.member = member;
+        this.group = group;
+    }
+
+    public static MemberGroup of(final Member member, final Group group) {
+        return new MemberGroup(member, group);
+    }
 }
