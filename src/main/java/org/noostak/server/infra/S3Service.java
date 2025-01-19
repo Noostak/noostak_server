@@ -2,10 +2,8 @@ package org.noostak.server.infra;
 
 import lombok.RequiredArgsConstructor;
 import org.noostak.server.global.config.AwsConfig;
-import org.noostak.server.group.domain.vo.GroupImageUrl;
 import org.noostak.server.infra.error.S3ErrorCode;
 import org.noostak.server.infra.error.S3Exception;
-import org.noostak.server.member.domain.vo.ProfileImageUrl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -41,7 +39,14 @@ public class S3Service implements FileStorageService {
 
         s3Client.putObject(request, RequestBody.fromBytes(image.getBytes()));
 
-        return generateFileUrl(key);
+        return key;
+    }
+
+    public String generateFileUrl(String key) {
+        return String.format("https://%s.s3.%s.amazonaws.com/%s",
+                awsConfig.getS3BucketName(),
+                awsConfig.getRegion().id(),
+                key);
     }
 
     @Override
@@ -60,26 +65,9 @@ public class S3Service implements FileStorageService {
         }
     }
 
-    public ProfileImageUrl uploadProfileImage(MultipartFile file) throws IOException {
-        String url = uploadImage("/profile/", file);
-        return ProfileImageUrl.from(url);
-    }
-
-    public GroupImageUrl uploadGroupImage(MultipartFile file) throws IOException {
-        String url = uploadImage("/group/", file);
-        return GroupImageUrl.from(url);
-    }
-
     private String generateFileName(String originalFilename) {
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         return UUID.randomUUID() + extension;
-    }
-
-    private String generateFileUrl(String key) {
-        return String.format("https://%s.s3.%s.amazonaws.com/%s",
-                awsConfig.getS3BucketName(),
-                awsConfig.getRegion().id(),
-                key);
     }
 
     private void validateFile(MultipartFile file) {
