@@ -21,14 +21,13 @@ import java.util.UUID;
 public class S3Service implements FileStorageService {
 
     private static final List<String> IMAGE_EXTENSIONS = Arrays.asList("image/jpeg", "image/png", "image/jpg", "image/webp");
-
     private final AwsConfig awsConfig;
 
     @Override
-    public String uploadImage(String directoryPath, MultipartFile image) throws IOException {
-        validateFile(image);
+    public String uploadImage(String directoryPath, MultipartFile image) {
+        validateImage(image);
 
-        String key = directoryPath + generateFileName(image.getOriginalFilename());
+        String key = directoryPath + generateImageName(image.getOriginalFilename());
         S3Client s3Client = awsConfig.getS3Client();
 
         PutObjectRequest request = PutObjectRequest.builder()
@@ -37,12 +36,17 @@ public class S3Service implements FileStorageService {
                 .contentType(image.getContentType())
                 .build();
 
-        s3Client.putObject(request, RequestBody.fromBytes(image.getBytes()));
+        try {
+            s3Client.putObject(request, RequestBody.fromBytes(image.getBytes()));
+        } catch (Exception e) {
+            throw new S3Exception(S3ErrorCode.FILE_SIZE_EXCEEDED);
+        }
 
         return key;
     }
 
-    public String generateFileUrl(String key) {
+    @Override
+    public String getImageUrl(String key) {
         return String.format("https://%s.s3.%s.amazonaws.com/%s",
                 awsConfig.getS3BucketName(),
                 awsConfig.getRegion().id(),
@@ -65,17 +69,17 @@ public class S3Service implements FileStorageService {
         }
     }
 
-    private String generateFileName(String originalFilename) {
+    private String generateImageName(String originalFilename) {
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         return UUID.randomUUID() + extension;
     }
 
-    private void validateFile(MultipartFile file) {
-        if (!IMAGE_EXTENSIONS.contains(file.getContentType())) {
+    private void validateImage(MultipartFile image) {
+        if (!IMAGE_EXTENSIONS.contains(image.getContentType())) {
             throw new S3Exception(S3ErrorCode.INVALID_EXTENSION);
         }
 
-        if (file.getSize() > awsConfig.getMaxFileSize()) {
+        if (image.getSize() > awsConfig.getMaxFileSize()) {
             throw new S3Exception(S3ErrorCode.FILE_SIZE_EXCEEDED);
         }
     }

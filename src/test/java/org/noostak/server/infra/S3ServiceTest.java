@@ -38,7 +38,6 @@ class S3ServiceTest {
             MultipartFile file = createMockImage("profile.jpg", "image/jpeg", new byte[]{1, 2, 3, 4});
             String directoryPath = "profile/";
 
-            // Mocking AWS S3 interactions
             setupMockForUpload();
 
             // When
@@ -68,7 +67,7 @@ class S3ServiceTest {
         void uploadImage_fileSizeExceedsLimit() {
             // Given
             MultipartFile file = createMockImage("large.jpg", "image/jpeg", new byte[3 * 1024 * 1024]);
-            when(awsConfig.getMaxFileSize()).thenReturn(2L * 1024 * 1024); // Set max file size to 2MB
+            when(awsConfig.getMaxFileSize()).thenReturn(2L * 1024 * 1024);
 
             // When & Then
             assertThatThrownBy(() -> s3Service.uploadImage("profile/", file))
@@ -89,7 +88,7 @@ class S3ServiceTest {
             String key = "profile/abc123.jpg";
 
             // When
-            String fileUrl = s3Service.generateFileUrl(key);
+            String fileUrl = s3Service.getImageUrl(key);
 
             // Then
             assertThat(fileUrl).startsWith("https://")
