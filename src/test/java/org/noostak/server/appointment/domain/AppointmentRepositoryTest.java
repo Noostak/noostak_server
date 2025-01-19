@@ -1,5 +1,6 @@
 package org.noostak.server.appointment.domain;
 
+import org.noostak.server.appointment.domain.repository.AppointmentRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -54,14 +54,14 @@ class AppointmentCreateServiceTest {
     private static final String DEFAULT_REFRESH_TOKEN = "refreshToken1";
     private static final String DEFAULT_GROUP_NAME = "Group 1";
     private static final String DEFAULT_FILE_NAME = "group-thumbnail.png";
+    private static final String DEFAULT_FILE_PARAM_NAME = "file";
     private static final String DEFAULT_FILE_CONTENT = "thumbnail content";
     private static final String DEFAULT_FILE_PATH = "group-images";
     private static final String DEFAULT_GROUP_CODE = "ABC123";
-    private static final String TEST_APPOINTMENT_NAME = "Study Group";
+    private static final String TEST_APPOINTMENT_NAME = "5차 회의";
     private static final String TEST_CATEGORY = "중요";
     private static final int TEST_DURATION = 120;
     private static final int DATE_TIME_SIZE = 2;
-    private static final String DEFAULT_FILE_PARAM_NAME = "file";
 
     @BeforeEach
     void setUp() {
@@ -80,19 +80,6 @@ class AppointmentCreateServiceTest {
         MockMultipartFile file = createDefaultMultipartFile();
         Group savedGroup = saveGroup(savedMemberId, DEFAULT_GROUP_NAME, file);
         savedGroupId = savedGroup.getGroupId();
-    }
-
-    private Member createDefaultMember() {
-        return saveMember(DEFAULT_MEMBER_NAME, DEFAULT_IMAGE_URL, DEFAULT_SOCIAL_ID, DEFAULT_REFRESH_TOKEN);
-    }
-
-    private MockMultipartFile createDefaultMultipartFile() {
-        return new MockMultipartFile(
-                DEFAULT_FILE_PARAM_NAME,
-                DEFAULT_FILE_NAME,
-                MediaType.IMAGE_PNG_VALUE,
-                DEFAULT_FILE_CONTENT.getBytes()
-        );
     }
 
     @Nested
@@ -198,6 +185,19 @@ class AppointmentCreateServiceTest {
                 .hasMessage(AppointmentErrorCode.MEMBER_NOT_FOUND.getMessage());
     }
 
+    private Member createDefaultMember() {
+        return saveMember(DEFAULT_MEMBER_NAME, DEFAULT_IMAGE_URL, DEFAULT_SOCIAL_ID, DEFAULT_REFRESH_TOKEN);
+    }
+
+    private MockMultipartFile createDefaultMultipartFile() {
+        return new MockMultipartFile(
+                DEFAULT_FILE_PARAM_NAME,
+                DEFAULT_FILE_NAME,
+                MediaType.IMAGE_PNG_VALUE,
+                DEFAULT_FILE_CONTENT.getBytes()
+        );
+    }
+
     private Member saveMember(String name, String imageUrl, String socialId, String refreshToken) {
         return memberRepository.save(
                 Member.of(
@@ -261,7 +261,7 @@ class AppointmentCreateServiceTest {
                         dateTime.getStartTime(),
                         dateTime.getEndTime()
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private AppointmentCreateResponse createAppointmentCreateResponse(Appointment appointment, List<AppointmentDateTimeResponse> dateTimeResponses) {

@@ -19,6 +19,7 @@ import org.noostak.server.global.entity.BaseTimeEntity;
 import org.noostak.server.member.domain.Member;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -37,25 +38,24 @@ public class AppointmentMember extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "appointmentMember_id")
+    private List<AppointmentMemberDateTime> appointmentMemberDateTimes;
+
     @Enumerated(EnumType.STRING)
     private AppointmentAvailability appointmentAvailability;
 
-    private LocalDateTime memberStartTime;
-
-    private LocalDateTime memberEndTime;
-
     private boolean liked;
 
-    private AppointmentMember(final Appointment appointment, final Member member, final AppointmentAvailability appointmentAvailability, final LocalDateTime memberStartTime, final LocalDateTime memberEndTime) {
+    private AppointmentMember(final Appointment appointment, final Member member, final List<AppointmentMemberDateTime> appointmentMemberDateTimes) {
         this.appointment = appointment;
         this.member = member;
-        this.appointmentAvailability = appointmentAvailability;
-        this.memberStartTime = memberStartTime;
-        this.memberEndTime = memberEndTime;
+        this.appointmentMemberDateTimes = appointmentMemberDateTimes;
+        this.appointmentAvailability = AppointmentAvailability.AVAILABLE;
         this.liked = false;
     }
 
-    public static AppointmentMember of(final Appointment appointment, final Member member, final AppointmentAvailability appointmentAvailability, final LocalDateTime memberStartTime, final LocalDateTime memberEndTime) {
-        return new AppointmentMember(appointment, member, appointmentAvailability, memberStartTime, memberEndTime);
+    public static AppointmentMember of(final Appointment appointment, final Member member, final List<AppointmentMemberDateTime> appointmentMemberDateTimes) {
+        return new AppointmentMember(appointment, member, appointmentMemberDateTimes);
     }
 }
