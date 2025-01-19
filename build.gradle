@@ -50,7 +50,7 @@ dependencies {
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
 	// JWKSet
-	implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.37.2'
 
 }
 
