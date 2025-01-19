@@ -6,14 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.noostak.server.global.config.AwsConfig;
 import org.noostak.server.infra.error.S3ErrorCode;
 import org.noostak.server.infra.error.S3Exception;
-import org.noostak.server.member.domain.vo.ProfileImageUrl;
-import org.noostak.server.group.domain.vo.GroupImageUrl;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 import java.io.IOException;
 
@@ -30,100 +28,73 @@ class S3ServiceTest {
     private final String bucketName = "test-bucket";
 
     @Nested
-    @DisplayName("프로필 이미지 업로드 테스트")
-    class UploadProfileImageTests {
-        private final String profileDirectory = "profile/";
+    @DisplayName("파일 업로드 테스트")
+    class UploadImageTests {
 
         @Test
         @DisplayName("이미지 업로드 - 성공")
-        void uploadProfileImage_success() throws IOException {
+        void uploadImage_success() throws IOException {
             // Given
             MultipartFile file = createMockImage("profile.jpg", "image/jpeg", new byte[]{1, 2, 3, 4});
+            String directoryPath = "profile/";
+
             setupMockForUpload();
 
             // When
-            ProfileImageUrl result = s3Service.uploadProfileImage(file);
+            String key = s3Service.uploadImage(directoryPath, file);
 
             // Then
-            assertThat(result.toString())
-                    .startsWith("https://test-bucket.s3.")
-                    .contains(profileDirectory)
+            assertThat(key).startsWith(directoryPath)
                     .endsWith(".jpg");
+
             verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
         }
 
         @Test
         @DisplayName("이미지 업로드 - 잘못된 확장자")
-        void uploadProfileImage_invalidExtension() {
+        void uploadImage_invalidExtension() {
             // Given
             MultipartFile file = createMockImage("invalid.txt", "text/plain", new byte[]{1, 2, 3, 4});
 
             // When & Then
-            assertThatThrownBy(() -> s3Service.uploadProfileImage(file))
+            assertThatThrownBy(() -> s3Service.uploadImage("profile/", file))
                     .isInstanceOf(S3Exception.class)
                     .hasMessageContaining(S3ErrorCode.INVALID_EXTENSION.getMessage());
         }
 
         @Test
         @DisplayName("이미지 업로드 - 파일 크기 초과")
-        void uploadProfileImage_fileSizeExceedsLimit() {
+        void uploadImage_fileSizeExceedsLimit() {
             // Given
             MultipartFile file = createMockImage("large.jpg", "image/jpeg", new byte[3 * 1024 * 1024]);
             when(awsConfig.getMaxFileSize()).thenReturn(2L * 1024 * 1024);
 
             // When & Then
-            assertThatThrownBy(() -> s3Service.uploadProfileImage(file))
+            assertThatThrownBy(() -> s3Service.uploadImage("profile/", file))
                     .isInstanceOf(S3Exception.class)
                     .hasMessageContaining(S3ErrorCode.FILE_SIZE_EXCEEDED.getMessage());
         }
     }
 
     @Nested
-    @DisplayName("그룹 이미지 업로드 테스트")
-    class UploadGroupImageTests {
-        private final String groupDirectory = "group/";
+    @DisplayName("URL 생성 테스트")
+    class GenerateFileUrlTests {
 
         @Test
-        @DisplayName("이미지 업로드 - 성공")
-        void uploadGroupImage_success() throws IOException {
+        @DisplayName("URL 생성 - 성공")
+        void generateFileUrl_success() {
             // Given
-            MultipartFile file = createMockImage("group.png", "image/png", new byte[]{1, 2, 3, 4});
             setupMockForUpload();
+            String key = "profile/abc123.jpg";
 
             // When
-            GroupImageUrl result = s3Service.uploadGroupImage(file);
+            String fileUrl = s3Service.getImageUrl(key);
 
             // Then
-            assertThat(result.toString())
-                    .startsWith("https://test-bucket.s3.")
-                    .contains(groupDirectory)
-                    .endsWith(".png");
-            verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
-        }
-
-        @Test
-        @DisplayName("이미지 업로드 - 잘못된 확장자")
-        void uploadGroupImage_invalidExtension() {
-            // Given
-            MultipartFile file = createMockImage("invalid.txt", "text/plain", new byte[]{1, 2, 3, 4});
-
-            // When & Then
-            assertThatThrownBy(() -> s3Service.uploadGroupImage(file))
-                    .isInstanceOf(S3Exception.class)
-                    .hasMessageContaining(S3ErrorCode.INVALID_EXTENSION.getMessage());
-        }
-
-        @Test
-        @DisplayName("이미지 업로드 - 파일 크기 초과")
-        void uploadGroupImage_fileSizeExceedsLimit() {
-            // Given
-            MultipartFile file = createMockImage("large.jpg", "image/jpeg", new byte[3 * 1024 * 1024]);
-            when(awsConfig.getMaxFileSize()).thenReturn(2L * 1024 * 1024);
-
-            // When & Then
-            assertThatThrownBy(() -> s3Service.uploadGroupImage(file))
-                    .isInstanceOf(S3Exception.class)
-                    .hasMessageContaining(S3ErrorCode.FILE_SIZE_EXCEEDED.getMessage());
+            assertThat(fileUrl).startsWith("https://")
+                    .contains("test-bucket")
+                    .contains("profile")
+                    .endsWith(".jpg");
         }
     }
 
@@ -167,7 +138,6 @@ class S3ServiceTest {
                     .hasMessageContaining(S3ErrorCode.OBJECT_NOT_FOUND.getMessage());
         }
     }
-
 
     private MultipartFile createMockImage(String fileName, String contentType, byte[] content) {
         return new MockMultipartFile("image", fileName, contentType, content);

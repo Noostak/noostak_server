@@ -10,6 +10,12 @@ public class MockFileStorageService implements FileStorageService {
     }
 
     @Override
+    public String getImageUrl(String key) {
+        return "http://mocked-url/" + key;
+    }
+
+
+    @Override
     public void deleteImage(String key) {
     }
 }
