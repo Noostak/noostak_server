@@ -2,6 +2,7 @@ package org.noostak.server.appointment.application;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.noostak.server.appointment.common.AppointmentErrorCode;
 import org.noostak.server.appointment.common.AppointmentException;
@@ -28,8 +29,10 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
+@DisplayName("약속 가능한 시간 저장 테스트")
 public class AppointmentSaveAvailableTimesTest {
 
     private AppointmentMemberRepositoryTest appointmentMemberRepository;
@@ -48,21 +51,6 @@ public class AppointmentSaveAvailableTimesTest {
     private MockMultipartFile file;
     private AppointmentMember appointmentMember;
 
-    private static final String DEFAULT_MEMBER_NAME = "firstMember";
-    private static final String DEFAULT_IMAGE_URL = "https://noostak.s3.ap-northeast-2.amazonaws.com/group-images/1.jpg";
-    private static final String DEFAULT_SOCIAL_ID = "123456";
-    private static final String DEFAULT_REFRESH_TOKEN = "refreshToken1";
-    private static final String DEFAULT_GROUP_NAME = "Group 1";
-    private static final String DEFAULT_FILE_NAME = "group-thumbnail.png";
-    private static final String DEFAULT_FILE_PARAM_NAME = "file";
-    private static final String DEFAULT_FILE_CONTENT = "thumbnail content";
-    private static final String DEFAULT_FILE_PATH = "group-images";
-    private static final String DEFAULT_GROUP_CODE = "ABC123";
-    private static final String TEST_APPOINTMENT_NAME = "5차 회의";
-    private static final String TEST_CATEGORY = "중요";
-    private static final int TEST_DURATION = 120;
-
-
     @BeforeEach
     void setUp() {
         appointmentMemberRepository = new AppointmentMemberRepositoryTest();
@@ -72,62 +60,154 @@ public class AppointmentSaveAvailableTimesTest {
         memberGroupRepository = new MemberGroupRepositoryTest();
         fileStorageService = new MockFileStorageService();
 
-
         member = createDefaultMember();
         file = createDefaultMultipartFile();
 
-
-        group = saveGroup(member.getMemberId(), DEFAULT_GROUP_NAME, file);
+        group = saveGroup(member.getMemberId(), "Group 1", file);
         savedGroupId = group.getGroupId();
         savedMemberId = member.getMemberId();
 
-
         saveMemberGroup(member, group);
 
-
         appointment = appointmentRepository.save(Appointment.of(
-                member, group, List.of(), TEST_APPOINTMENT_NAME, TEST_DURATION, TEST_CATEGORY, AppointmentStatus.PROGRESS));
-
-
+                member, group, List.of(), "5차 회의", 120, "중요", AppointmentStatus.PROGRESS));
         appointmentMember = AppointmentMember.of(appointment, member, List.of());
-
-
         appointmentMemberRepository.save(appointmentMember);
 
         savedAppointmentId = appointment.getId();
     }
 
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCases {
 
+        @Test
+        @DisplayName("약속 가능한 시간 저장 - 성공")
+        void shouldSaveAvailableTimesSuccessfully() {
+            // Given
+            validateMemberInGroup(savedMemberId, savedGroupId);
+            Appointment appointment = findValidAppointment(savedAppointmentId, savedGroupId);
+            Member member = findValidMember(savedMemberId);
+            AppointmentMember appointmentMember = findOrCreateAppointmentMember(appointment, member);
+            List<AppointmentMemberDateTime> availableTimes = createAvailableTimes();
+            List<AppointmentMemberDateTime> existingTimes = new ArrayList<>(appointmentMember.getAppointmentMemberDateTimes());
+            List<AppointmentMemberDateTime> timesToAdd = findTimesToAdd(existingTimes, availableTimes);
+            List<AppointmentMemberDateTime> timesToRemove = findTimesToRemove(existingTimes, availableTimes);
 
-    @Test
-    @DisplayName("saveAvailableTimes - 성공")
-    void shouldSaveAvailableTimesSuccessfully() {
-        // Given
+            // When
+            updateTimes(existingTimes, timesToAdd, timesToRemove);
 
-        if (!memberGroupRepository.existsByGroupGroupIdAndMemberMemberId(savedMemberId, savedGroupId)) {
+            // Then
+            assertThat(existingTimes).hasSize(2);
+            assertThat(existingTimes).containsAll(availableTimes);
+        }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailureCases {
+
+        @Test
+        @DisplayName("회원이 그룹에 속하지 않은 경우")
+        void shouldFailWhenMemberNotInGroup() {
+            // Given
+            Long invalidGroupId = savedGroupId + 1;
+
+            // When & Then
+            AppointmentException exception = assertThrows(AppointmentException.class, () -> {
+                validateMemberInGroup(savedMemberId, invalidGroupId);
+            });
+
+            assertThat(exception.getErrorCode()).isEqualTo(AppointmentErrorCode.MEMBER_NOT_IN_GROUP);
+        }
+
+        @Test
+        @DisplayName("약속이 존재하지 않는 경우")
+        void shouldFailWhenAppointmentNotFound() {
+            // Given
+            Long invalidAppointmentId = savedAppointmentId + 1;
+
+            // When & Then
+            AppointmentException exception = assertThrows(AppointmentException.class, () -> {
+                findAppointment(invalidAppointmentId, savedGroupId);
+            });
+
+            assertThat(exception.getErrorCode()).isEqualTo(AppointmentErrorCode.APPOINTMENT_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("약속이 그룹에 속하지 않은 경우")
+        void shouldFailWhenAppointmentNotInGroup() {
+            // Given
+            Group differentGroup = groupRepository.save(
+                    Group.of(
+                            member.getMemberId(),
+                            GroupName.from("다른 그룹"),
+                            GroupImageUrl.from("https://example.com/different-group.jpg"),
+                            "DIF123"
+                    )
+            );
+
+            Appointment invalidAppointment = appointmentRepository.save(
+                    Appointment.of(
+                            member, differentGroup, List.of(), "5차 회의", 120, "중요", AppointmentStatus.PROGRESS
+                    )
+            );
+
+            // When & Then
+            AppointmentException exception = assertThrows(AppointmentException.class, () -> {
+                findAppointment(invalidAppointment.getId(), savedGroupId);
+            });
+
+            assertThat(exception.getErrorCode()).isEqualTo(AppointmentErrorCode.APPOINTMENT_NOT_IN_GROUP);
+        }
+
+        @Test
+        @DisplayName("회원이 존재하지 않는 경우")
+        void shouldFailWhenMemberNotFound() {
+            // Given
+            Long invalidMemberId = savedMemberId + 1;
+
+            // When & Then
+            AppointmentException exception = assertThrows(AppointmentException.class, () -> {
+                findById(invalidMemberId);
+            });
+
+            assertThat(exception.getErrorCode()).isEqualTo(AppointmentErrorCode.MEMBER_NOT_FOUND);
+        }
+    }
+
+    private void validateMemberInGroup(Long memberId, Long groupId) {
+        if (!memberGroupRepository.existsByGroupGroupIdAndMemberMemberId(memberId, groupId)) {
             throw new AppointmentException(AppointmentErrorCode.MEMBER_NOT_IN_GROUP);
         }
+    }
 
-
-        Appointment appointment = appointmentRepository.findById(savedAppointmentId)
+    private Appointment findValidAppointment(Long appointmentId, Long groupId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_FOUND));
-        if (!appointment.getGroup().getGroupId().equals(savedGroupId)) {
+
+        if (!appointment.getGroup().getGroupId().equals(groupId)) {
             throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_IN_GROUP);
         }
+        return appointment;
+    }
 
-
-        Member member = memberRepository.findById(savedMemberId)
+    private Member findValidMember(Long memberId) {
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.MEMBER_NOT_FOUND));
+    }
 
-
-        AppointmentMember appointmentMember = appointmentMemberRepository.findByAppointmentAndMember(appointment, member)
+    private AppointmentMember findOrCreateAppointmentMember(Appointment appointment, Member member) {
+        return appointmentMemberRepository.findByAppointmentAndMember(appointment, member)
                 .orElseGet(() -> {
                     AppointmentMember newMember = AppointmentMember.of(appointment, member, List.of());
                     return appointmentMemberRepository.save(newMember);
                 });
+    }
 
-
-        List<AppointmentMemberDateTime> availableTimes = List.of(
+    private List<AppointmentMemberDateTime> createAvailableTimes() {
+        return List.of(
                 AppointmentMemberDateTime.of(
                         LocalDateTime.now(),
                         LocalDateTime.now().withHour(10).withMinute(0),
@@ -139,25 +219,40 @@ public class AppointmentSaveAvailableTimesTest {
                         LocalDateTime.now().plusDays(1).withHour(18).withMinute(0)
                 )
         );
+    }
 
-
-        List<AppointmentMemberDateTime> existingTimes = new ArrayList<>(appointmentMember.getAppointmentMemberDateTimes());
-
-
+    private List<AppointmentMemberDateTime> findTimesToAdd(List<AppointmentMemberDateTime> existingTimes, List<AppointmentMemberDateTime> availableTimes) {
         Set<AppointmentMemberDateTime> existingSet = new HashSet<>(existingTimes);
-        List<AppointmentMemberDateTime> timesToAdd = availableTimes.stream()
+        return availableTimes.stream()
                 .filter(time -> !existingSet.contains(time))
                 .toList();
-        List<AppointmentMemberDateTime> timesToRemove = existingTimes.stream()
+    }
+
+    private List<AppointmentMemberDateTime> findTimesToRemove(List<AppointmentMemberDateTime> existingTimes, List<AppointmentMemberDateTime> availableTimes) {
+        return existingTimes.stream()
                 .filter(time -> !availableTimes.contains(time))
                 .toList();
+    }
 
+    private void updateTimes(List<AppointmentMemberDateTime> existingTimes, List<AppointmentMemberDateTime> timesToAdd, List<AppointmentMemberDateTime> timesToRemove) {
         existingTimes.removeAll(timesToRemove);
         existingTimes.addAll(timesToAdd);
+    }
 
-        // Then
-        assertThat(existingTimes).hasSize(2);
-        assertThat(existingTimes).containsAll(availableTimes);
+    private Appointment findAppointment(Long appointmentId, Long groupId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_FOUND));
+
+        if (!appointment.getGroup().getGroupId().equals(groupId)) {
+            throw new AppointmentException(AppointmentErrorCode.APPOINTMENT_NOT_IN_GROUP);
+        }
+
+        return appointment;
+    }
+
+    private Member findById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new AppointmentException(AppointmentErrorCode.MEMBER_NOT_FOUND));
     }
 
     private void saveMemberGroup(Member member, Group group) {
@@ -167,28 +262,28 @@ public class AppointmentSaveAvailableTimesTest {
 
 
     private Group saveGroup(Long hostId, String groupName, MockMultipartFile file) {
-        String uploadedImageUrl = fileStorageService.uploadImage(DEFAULT_FILE_PATH, file);
+        String uploadedImageUrl = fileStorageService.uploadImage("group-images", file);
         return groupRepository.save(
                 Group.of(
                         hostId,
                         GroupName.from(groupName),
                         GroupImageUrl.from(uploadedImageUrl),
-                        DEFAULT_GROUP_CODE
+                        "ABC123"
                 )
         );
     }
 
     private MockMultipartFile createDefaultMultipartFile() {
         return new MockMultipartFile(
-                DEFAULT_FILE_PARAM_NAME,
-                DEFAULT_FILE_NAME,
+                "mockFile",
+                "group-test.png",
                 MediaType.IMAGE_PNG_VALUE,
-                DEFAULT_FILE_CONTENT.getBytes()
+                "test content".getBytes()
         );
     }
 
     private Member createDefaultMember() {
-        return saveMember(DEFAULT_MEMBER_NAME, DEFAULT_IMAGE_URL, DEFAULT_SOCIAL_ID, DEFAULT_REFRESH_TOKEN);
+        return saveMember("firstMember", "https://noostak.s3.ap-northeast-2.amazonaws.com/group-images/1.jpg", "123456", "refreshToken1");
     }
 
     private Member saveMember(String name, String imageUrl, String socialId, String refreshToken) {
