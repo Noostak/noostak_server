@@ -48,6 +48,10 @@ dependencies {
 
 	// Configuration Processor
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	// JWKSet
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
+
 }
 
 tasks.named('test') {
