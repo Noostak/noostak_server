@@ -5,6 +5,7 @@ import org.noostak.server.appointment.application.AppointmentService;
 import org.noostak.server.appointment.dto.request.AppointmentCreateRequest;
 import org.noostak.server.appointment.dto.request.AvailableTimesRequest;
 import org.noostak.server.appointment.dto.response.AppointmentCreateResponse;
+import org.noostak.server.appointment.dto.response.GroupAppointmentProgressResponse;
 import org.noostak.server.global.success.core.SuccessResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,5 +40,12 @@ public class AppointmentController {
         Long memberId = 2L;
         appointmentService.saveAvailableTimes(memberId, groupId, appointmentId, request);
         return ResponseEntity.ok(SuccessResponse.of(SUCCESS_SAVE_AVAILABLE_TIME_SELECTION));
+    }
+
+    @GetMapping("/{groupId}/appointments/progress")
+    public ResponseEntity<SuccessResponse<GroupAppointmentProgressResponse>> progressAppointment(
+            @PathVariable(name = "groupId") Long groupId) {
+        GroupAppointmentProgressResponse response = appointmentService.getProgressAppointments(groupId);
+        return ResponseEntity.ok(SuccessResponse.of(SUCCESS_GET_PROGRESS_APPOINTMENTS, response));
     }
 }
