@@ -1,6 +1,8 @@
 package org.noostak.server.appointment.domain;
 
 import org.noostak.server.appointment.domain.repository.AppointmentRepository;
+import org.noostak.server.appointment.domain.vo.AppointmentStatus;
+import org.noostak.server.group.domain.Group;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -189,5 +191,12 @@ public class AppointmentRepositoryTest implements AppointmentRepository {
     @Override
     public Page<Appointment> findAll(Pageable pageable) {
         return null;
+    }
+
+    @Override
+    public List<Appointment> findByGroupAndAppointmentStatus(Group group, AppointmentStatus status) {
+        return appointments.stream()
+                .filter(appointment -> appointment.getGroup().equals(group) && appointment.getAppointmentStatus().equals(status))
+                .toList();
     }
 }
